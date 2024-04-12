@@ -1,0 +1,43 @@
+version: '3.8'
+
+x-default:
+  environment:
+    &env
+    TZ: Asia/Seoul
+    TERM: xtem-256color
+
+services:
+  backend:
+    container_name: backend
+    image: python:3.11.8-alpine
+    environment:
+      <<: *env
+    ports:
+      - 8000:8000
+    volumes:
+      - ./:/home
+    working_dir: /home
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        pip install --upgrade -q pip
+        pip install --no-cache-dir --upgrade -q -r requirements.txt
+        uvicorn main:app --reload --host=0.0.0.0
+    depends_on:
+      database:
+        condition: service_healthy
+    tty: true
+
+  database:
+    container_name: database
+    image: postgres:13.12-alpine
+    environment:
+      <<: *env
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
+#    volumes:
+#      - ./.postgresql/data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
