@@ -1,7 +1,6 @@
 import requests
 from fastapi import status, HTTPException
 from google.auth import transport
-from google.oauth2 import id_token
 
 from apps.auth import dto
 from core.config import secrets
