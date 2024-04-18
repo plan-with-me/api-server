@@ -3,6 +3,7 @@ from fastapi import FastAPI
 
 app = FastAPI(
     title="TODO",
+    root_path="/api",
     docs_url='/docs',
     redoc_url='/redoc',
 )
