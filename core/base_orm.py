@@ -25,4 +25,4 @@ class BaseEntity(Model):
         force_update: bool = False
     ) -> Coroutine[Any, Any, None]:
         self.modified_at = datetime.now()
-        return super().save(using_db, update_fields, force_create, force_update)
+        return await super().save(using_db, update_fields, force_create, force_update)

@@ -8,5 +8,5 @@ class User(BaseEntity):
     uid = fields.CharField(max_length=64, unique=True)
     social_type = fields.CharEnumField(SocialType, max_length=12)
     name = fields.CharField(max_length=16)
-    introduction = fields.TextField()
-    image = fields.CharField(max_length=256)
+    introduction = fields.TextField(null=True)
+    image = fields.CharField(max_length=256, null=True)
