@@ -65,14 +65,14 @@ db_config = {
 
 @app.on_event("startup")
 async def on_start_up():
-    await Tortoise.init(
-        config=db_config,
-        use_tz=True,
-        timezone="Asia/Seoul",
-    )
+    # await Tortoise.init(
+    #     config=db_config,
+    #     use_tz=True,
+    #     timezone="Asia/Seoul",
+    # )
 
-    from core import init_db
-    await init_db.schema_and_tables(safe=False)
+    # from core import init_db
+    # await init_db.schema_and_tables(safe=False)
 
     # Get tortoise logger for debug sql script
     fmt = logging.Formatter(fmt="%(message)s\n", datefmt="%Y-%m-%d %H:%M:%S")

@@ -1,6 +1,7 @@
 import requests
 from fastapi import status, HTTPException
-from google.auth import transport
+from google.oauth2 import id_token
+from google.auth.transport.requests import Request
 
 from apps.auth import dto
 from core.config import secrets
@@ -9,23 +10,23 @@ from core.config import secrets
 class OAuthClient:
 
     @classmethod
-    def verify_google_token(cls, id_token: str):
+    def verify_google_token(cls, google_id_token: str):
         try:
             user_info = id_token.verify_oauth2_token(
-                id_token=id_token,
+                id_token=google_id_token,
                 audience=secrets.GOOGLE_CLIENT_ID,
-                request=transport.requests.Request(),
+                request=Request(),
             )
             return user_info
         except Exception as e:
             raise HTTPException(status.HTTP_400_BAD_REQUEST)
 
     @classmethod
-    def verify_kakao_token(cls, form: dto.KakaoCredentials):
+    def verify_kakao_token(cls, kakao_access_token):
         response = requests.get(
             url='https://kapi.kakao.com/v2/user/me?property_keys=["kakao_account.email"]',
             headers={
-                "Authorization": f"Bearer {form.access_token}",
+                "Authorization": f"Bearer {kakao_access_token}",
                 "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
             },
         )
