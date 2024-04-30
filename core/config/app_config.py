@@ -11,7 +11,7 @@ from main import app
 
 
 origins = [
-    "http://localhost",
+    "http://localhost:3000",
     # TODO Add client origin
 ]
 
