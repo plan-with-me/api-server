@@ -1,9 +1,31 @@
-from fastapi import Request, status
+import traceback
+
+from fastapi import Request, status, HTTPException
 from fastapi.responses import JSONResponse
 
 from tortoise.exceptions import IntegrityError, DoesNotExist
 
 from main import app
+
+
+@app.exception_handler(HTTPException)
+async def handle_http_exceptions(request: Request, exc: HTTPException):
+    detail = {
+        "detail": exc.detail,
+        "metadata": {
+            "request_info": {"url": str(request.url), "method": request.method},
+            "request_headers": {
+                header[0]: header[1] 
+                for header in request.headers.items()
+            },
+        },
+        "traceback": traceback.format_exc(), # Debug only
+    }
+
+    return JSONResponse(
+        status_code=exc.status_code,
+        detail=detail,
+    )
 
 
 @app.exception_handler(Exception)
