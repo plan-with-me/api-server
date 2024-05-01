@@ -3,20 +3,28 @@ from pydantic import BaseModel
 from core.config import var_config as vars
 
 
-class GoogleCredentials(BaseModel):
+# class GoogleCredentials(BaseModel):
+#     """
+#     구글 로그인/회원가입 모델
+#     - id_token (str): 구글 로그인 후 발급받은 ID TOKEN
+#     """
+#     id_token: str
+
+
+# class KakaoCredentials(BaseModel):
+#     """
+#     카카오 로그인/회원가입 모델
+#     - access_token (str): 카카오 로그인 후 발급받은 Access Token
+#     """
+#     access_token: str
+
+
+class SocialLoginCredentials(BaseModel):
     """
-    구글 로그인/회원가입 모델
-    - id_token (str): 구글 로그인 후 발급받은 ID TOKEN
+    소셜 로그인/회원가입 모델
+    - id_token (str): 소셜 플랫폼 인증 후 받은 ID 토큰 값
     """
     id_token: str
-
-
-class KakaoCredentials(BaseModel):
-    """
-    카카오 로그인/회원가입 모델
-    - access_token (str): 카카오 로그인 후 발급받은 Access Token
-    """
-    access_token: str
 
 
 class TokenResponse(BaseModel):

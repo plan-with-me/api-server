@@ -32,17 +32,14 @@ router = APIRouter(
 @atomic()
 async def authentication(
     social_type: enum.SocialType, 
-    credentials: Union[
-        dto.GoogleCredentials, 
-        dto.KakaoCredentials,
-    ],
+    credentials: dto.SocialLoginCredentials,
 ):
     if social_type == enum.SocialType.GOOGLE:
         user_info = OAuthClient.verify_google_token(credentials.id_token)
         uid = user_info["email"]
     elif social_type == enum.SocialType.KAKAO:
-        user_info = OAuthClient.verify_kakao_token(credentials.access_token)
-        uid = user_info["id"]
+        user_info = OAuthClient.verify_kakao_token(credentials.id_token)
+        uid = user_info["sub"]
     
     status_code = status.HTTP_200_OK
     user = await model.User.get_or_none(
