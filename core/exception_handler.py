@@ -27,8 +27,8 @@ async def handle_http_exceptions(request: Request, exc: HTTPException):
                         for header in request.headers.items()
                     },
                 },
+                "traceback": traceback.format_exc(), # Debug only
             },
-            "traceback": traceback.format_exc(), # Debug only
         },
     )
 
@@ -55,6 +55,7 @@ async def handle_unexpected_exceptions(request: Request, exc: Exception):
                         for header in request.headers.items()
                     },
                 },
+                "traceback": traceback.format_exc(), # Debug only
             },
         }
     )
