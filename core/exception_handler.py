@@ -10,21 +10,26 @@ from main import app
 
 @app.exception_handler(HTTPException)
 async def handle_http_exceptions(request: Request, exc: HTTPException):
-    detail = {
-        "detail": exc.detail,
-        "metadata": {
-            "request_info": {"url": str(request.url), "method": request.method},
-            "request_headers": {
-                header[0]: header[1] 
-                for header in request.headers.items()
-            },
-        },
-        "traceback": traceback.format_exc(), # Debug only
-    }
-
     return JSONResponse(
         status_code=exc.status_code,
-        detail=detail,
+        content={
+            "detail": exc.detail,
+            "metadata": {
+                "request_info": {
+                    "url": str(request.url), 
+                    "method": request.method, 
+                    "hostname": request.url.hostname, 
+                    "port": request.url.port,
+                    "path_params": request.url.path,
+                    "query_params": request.url.query,
+                    "headers": {
+                        header[0]: header[1] 
+                        for header in request.headers.items()
+                    },
+                },
+            },
+            "traceback": traceback.format_exc(), # Debug only
+        },
     )
 
 
@@ -39,6 +44,7 @@ async def handle_unexpected_exceptions(request: Request, exc: Exception):
             "detail": str(exc),
             "metadata": {
                 "request_info": {
+                    "url": str(request.url), 
                     "method": request.method, 
                     "hostname": request.url.hostname, 
                     "port": request.url.port,
