@@ -8,8 +8,16 @@ from tortoise.exceptions import IntegrityError, DoesNotExist
 from main import app
 
 
+@app.exception_handler(DoesNotExist)
+async def handle_does_not_exist_exception(request: Request, exc: DoesNotExist):
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content={"detail": str(exc)},
+    )
+
+
 @app.exception_handler(HTTPException)
-async def handle_http_exceptions(request: Request, exc: HTTPException):
+async def handle_http_exception(request: Request, exc: HTTPException):
     return JSONResponse(
         status_code=exc.status_code,
         content={
@@ -34,7 +42,7 @@ async def handle_http_exceptions(request: Request, exc: HTTPException):
 
 
 @app.exception_handler(Exception)
-async def handle_unexpected_exceptions(request: Request, exc: Exception):
+async def handle_unexpected_exception(request: Request, exc: Exception):
     # TODO handle exception code
 
     return JSONResponse(

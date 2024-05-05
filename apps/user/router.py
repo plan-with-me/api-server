@@ -29,7 +29,7 @@ async def get_user(user_id: int):
 async def update_user_profile(
     request: Request,
     user_id: int,
-    form: dto.UserUpdateForm
+    form: dto.UserUpdateForm,
 ):
     if request.state.token_payload["id"] != user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)

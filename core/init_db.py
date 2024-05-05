@@ -15,8 +15,8 @@ async def schema_and_tables(safe: bool=True):
 
 
 async def dummy_data():
+    from datetime import datetime
     from apps.user import model as user_model
-
     await user_model.User.bulk_create(
         objects=[
             user_model.User(
@@ -30,4 +30,31 @@ async def dummy_data():
                 name="Test user 2",
             ),
         ]
+    )
+
+    from apps.todo import model as todo_model
+    await todo_model.TodoGroup.create(
+        name="Test todogroup1",
+        description="todogroup for test",
+        user_id=1
+    )
+    await todo_model.TodoGroup.create(
+        name="Test todogroup2",
+        description="todogroup for test",
+        user_id=2
+    )
+
+    await todo_model.Todo.create(
+        name="Test todo1",
+        description="todogroup 1's todo item",
+        plan_datetime=datetime(2024, 12, 30),
+        user_id=1,
+        todo_group_id=1,
+    )
+    await todo_model.Todo.create(
+        name="Test todo2",
+        description="todogroup 1's todo item",
+        plan_datetime=datetime(2024, 12, 30),
+        user_id=2,
+        todo_group_id=2,
     )
