@@ -15,4 +15,19 @@ async def schema_and_tables(safe: bool=True):
 
 
 async def dummy_data():
-    pass
+    from apps.user import model as user_model
+
+    await user_model.User.bulk_create(
+        objects=[
+            user_model.User(
+                uid="test1",
+                social_type="kakao",
+                name="Test user 1",
+            ),
+            user_model.User(
+                uid="test2",
+                social_type="google",
+                name="Test user 2",
+            ),
+        ]
+    )

@@ -64,3 +64,8 @@ async def authentication(
         status_code=status_code,
         content=dto.TokenResponse(access_token=token).__dict__,
     )
+
+
+@router.get("/test")
+async def test_auth():
+    return build_token(id=1)
