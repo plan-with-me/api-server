@@ -32,29 +32,29 @@ async def dummy_data():
         ]
     )
 
-    from apps.todo import model as todo_model
-    await todo_model.TodoGroup.create(
-        name="Test todogroup1",
-        description="todogroup for test",
+    from apps.goal import model as goal_model
+    await goal_model.TopGoal.create(
+        name="Test topgoal 1",
+        description="topgoal for test",
         user_id=1
     )
-    await todo_model.TodoGroup.create(
-        name="Test todogroup2",
-        description="todogroup for test",
+    await goal_model.TopGoal.create(
+        name="Test topgoal 2",
+        description="topgoal for test",
         user_id=2
     )
 
-    await todo_model.Todo.create(
-        name="Test todo1",
-        description="todogroup 1's todo item",
+    await goal_model.SubGoal.create(
+        name="Test subgoal1",
+        description="topgoal 1's todo item",
         plan_datetime=datetime(2024, 12, 30),
         user_id=1,
-        todo_group_id=1,
+        top_goal_id=1,
     )
-    await todo_model.Todo.create(
-        name="Test todo2",
-        description="todogroup 1's todo item",
+    await goal_model.SubGoal.create(
+        name="Test subgoal2",
+        description="topgoal 1's todo item",
         plan_datetime=datetime(2024, 12, 30),
         user_id=2,
-        todo_group_id=2,
+        top_goal_id=2,
     )

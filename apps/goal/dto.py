@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from datetime import datetime
 
 
-class TodoGroupResponse(BaseModel):
+class TopGoalResponse(BaseModel):
     id: int
     name: str
     description: str | None
@@ -11,12 +11,12 @@ class TodoGroupResponse(BaseModel):
     updated_at: datetime
 
 
-class TodoGroupForm(BaseModel):
+class TopGoalForm(BaseModel):
     name: str
     description: str | None
 
 
-class TodoRepsonse(BaseModel):
+class SubGoalRepsonse(BaseModel):
     id: int
     todo_group_id: int
     name: str
@@ -26,7 +26,7 @@ class TodoRepsonse(BaseModel):
     updated_at: datetime
 
 
-class TodoForm(BaseModel):
+class SubGoalForm(BaseModel):
     name: str
     description: str | None
     plan_datetime: datetime
