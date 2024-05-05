@@ -1,11 +1,14 @@
 from pydantic import BaseModel
 from datetime import datetime
 
+from apps.goal import model
+
 
 class TopGoalResponse(BaseModel):
     id: int
     name: str
-    description: str | None
+    color: str
+    status: str
     show_scope: str
     created_at: datetime
     updated_at: datetime
@@ -13,14 +16,14 @@ class TopGoalResponse(BaseModel):
 
 class TopGoalForm(BaseModel):
     name: str
-    description: str | None
+    color: str = "skyblue"
+    show_scope: str = model.ShowScope.ME
 
 
 class SubGoalRepsonse(BaseModel):
     id: int
-    todo_group_id: int
+    top_goal_id: int
     name: str
-    description: str | None
     plan_datetime: datetime
     created_at: datetime
     updated_at: datetime
@@ -28,5 +31,5 @@ class SubGoalRepsonse(BaseModel):
 
 class SubGoalForm(BaseModel):
     name: str
-    description: str | None
     plan_datetime: datetime
+    status: str
