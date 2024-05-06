@@ -44,7 +44,7 @@ async def get_my_top_goals(request: Request):
 
 
 @router.post(
-    path="/top-goals/{top_goal_id}",
+    path="/sub-goals",
     dependencies=[Depends(Auth())],
     response_model=dto.SubGoalRepsonse,
 )
@@ -80,3 +80,20 @@ async def get_my_sub_goals(request: Request):
         dto.SubGoalRepsonse(**sub_goal.__dict__)
         for sub_goal in sub_goals
     ]
+
+
+@router.put(
+    path="/sub-goals/{sub_goal_id}",
+    dependencies=[Depends(Auth())],
+)
+async def update_sub_goal(
+    request: Request,
+    sub_goal_id: int,
+    form: dto.SubGoalForm,
+):
+    request_user_id = request.state.token_payload["id"]
+    sub_goal = await model.SubGoal.get(
+        id=sub_goal_id,
+        user_id=request_user_id,
+    )
+    
