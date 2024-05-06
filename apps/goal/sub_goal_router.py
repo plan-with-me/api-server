@@ -14,7 +14,7 @@ router = APIRouter(
 
 
 @router.post(
-    path="/sub-goals",
+    path="",
     response_model=dto.SubGoalRepsonse,
 )
 @atomic()
@@ -36,7 +36,7 @@ async def create_sub_goal(
 
 
 @router.get(
-    path="/sub-goals",
+    path="",
     response_model=list[dto.SubGoalRepsonse],
 )
 async def get_my_sub_goals(request: Request):
@@ -51,7 +51,7 @@ async def get_my_sub_goals(request: Request):
 
 
 @router.put(
-    path="/sub-goals/{sub_goal_id}",
+    path="/{sub_goal_id}",
     response_model=dto.SubGoalRepsonse,
 )
 @atomic()
@@ -70,7 +70,7 @@ async def update_sub_goal(
 
 
 @router.delete(
-    path="/sub-goals/{sub_goal_id}",
+    path="/{sub_goal_id}",
     status_code=status.HTTP_200_OK,
 )
 @atomic()

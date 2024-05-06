@@ -61,7 +61,7 @@ async def update_top_goal(
 
 
 @router.delete(
-    path="/top-goals/{top_goal_id}",
+    path="/{top_goal_id}",
     status_code=status.HTTP_200_OK,
 )
 @atomic()
