@@ -26,3 +26,10 @@ class BaseEntity(Model):
     ) -> Coroutine[Any, Any, None]:
         self.updated_at = datetime.now()
         return await super().save(using_db, update_fields, force_create, force_update)
+    
+    async def update_from_dict(
+        self: MODEL, 
+        data: dict
+    ) -> MODEL:
+        data["updated_at"] = datetime.now()
+        return super().update_from_dict(data)

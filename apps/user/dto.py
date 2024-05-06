@@ -1,14 +1,12 @@
 from pydantic import BaseModel
-from datetime import datetime
+
+from core.base_dto import BaseResponse
 
 
-class UserResponse(BaseModel):
-    id: int
+class UserResponse(BaseResponse):
     name: str
     introduction: str | None
     image: str | None
-    created_at: datetime
-    updated_at: datetime
 
 
 class UserUpdateForm(BaseModel):
