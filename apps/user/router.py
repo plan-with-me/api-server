@@ -12,8 +12,19 @@ router = APIRouter(
 
 
 @router.get(
+    path="/me",
+    dependencies=[Depends(Auth())],
+    response_model=dto.UserResponse,
+)
+async def get_my_user_info(request: Request):
+    user = await model.User.get(id=request.state.token_payload["id"])
+    return dto.UserResponse(**user.__dict__)
+
+
+@router.get(
     path="/{user_id}",
     dependencies=[Depends(Auth())],
+    response_model=dto.UserResponse,
 )
 async def get_user(user_id: int):
     user = await model.User.get(id=user_id)
