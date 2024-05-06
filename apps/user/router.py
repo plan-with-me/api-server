@@ -58,4 +58,4 @@ async def update_user_profile(
 @atomic()
 async def delete_user_me(request: Request):
     result = await model.User.filter(id=request.state.token_payload["id"]).delete()
-    return 
+    return result
