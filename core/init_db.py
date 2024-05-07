@@ -32,7 +32,7 @@ async def dummy_data():
             user_model.User(
                 uid="3463192767", # 경천님
                 social_type="kakao",
-                nickname="스트릿출신 순두부",
+                name="스트릿출신 순두부",
             )
         ]
     )
