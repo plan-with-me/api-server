@@ -1,4 +1,3 @@
-from typing import Union
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 from tortoise.transactions import atomic

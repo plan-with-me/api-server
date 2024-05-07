@@ -22,6 +22,7 @@ app = FastAPI(
     description=app_description,
 )
 
+
 import core.config.app_config
 
 
