@@ -29,31 +29,37 @@ async def dummy_data():
                 social_type="google",
                 name="Test user 2",
             ),
+            user_model.User(
+                uid="3463192767", # 경천님
+                social_type="kakao",
+                nickname="스트릿출신 순두부",
+            )
         ]
     )
 
     from apps.goal import model as goal_model
     await goal_model.TopGoal.create(
         name="Test topgoal 1",
-        description="topgoal for test",
         user_id=1
     )
     await goal_model.TopGoal.create(
         name="Test topgoal 2",
-        description="topgoal for test",
         user_id=2
     )
+    for idx in range(1, 11):
+        await goal_model.TopGoal.create(
+            name=f"테스트 상위목표 {idx}",
+            user_id=3,
+        )
 
     await goal_model.SubGoal.create(
         name="Test subgoal1",
-        description="topgoal 1's todo item",
         plan_datetime=datetime(2024, 12, 30),
         user_id=1,
         top_goal_id=1,
     )
     await goal_model.SubGoal.create(
         name="Test subgoal2",
-        description="topgoal 1's todo item",
         plan_datetime=datetime(2024, 12, 30),
         user_id=2,
         top_goal_id=2,
