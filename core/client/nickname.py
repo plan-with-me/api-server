@@ -1,16 +1,17 @@
-import requests
 from fastapi import HTTPException
+
+from core import aiorequests
 
 
 class NicknameGenerator:
 
     @classmethod
-    def generate_random_nickname(
+    async def generate_random_nickname(
         cls, 
         max_length: int = 12,
         count: int = 30
     ):
-        response = requests.get(
+        response = await aiorequests.get(
             url="https://nickname.hwanmoo.kr", 
             params={
                 "format": "json", 
@@ -19,6 +20,6 @@ class NicknameGenerator:
             },
         )
         if response.status_code != 200:
-            raise HTTPException(response.status_code, response.text)
+            raise HTTPException(response.status_code, response.content_text)
 
         return response.json()["words"]
