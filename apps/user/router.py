@@ -8,7 +8,7 @@ from apps.user import model, dto, enum
 router = APIRouter(
     prefix="/users",
     tags=["User"],
-    # dependencies=[Depends(Auth())],
+    dependencies=[Depends(Auth())],
 )
 
 
@@ -33,7 +33,6 @@ async def get_user(user_id: int):
 @router.put(
     path="/{user_id}",
     response_model=dto.UserResponse,
-    description="본인의 프로필을 수정합니다.",
 )
 @atomic()
 async def update_user_profile(
@@ -63,27 +62,40 @@ async def delete_user_me(request: Request):
 @router.post(
     path="/{user_id}/follow",
 )
+@atomic()
 async def follow_user(request: Request, user_id: int):
     request_user_id = request.token_payload["id"]
-    follow = await model.Follow.create(
+    await model.Follow.create(
         user_id=request_user_id,
         target_user_id=user_id,
     )
+    return None
 
 
 @router.get(
-    path="/{user_id}/{kind}",
+    path="/{user_id}/{follow_kind}",
     response_model=list[dto.UserResponse],
 )
 async def get_follows(
-    request: Request,
     user_id: int,
-    kind: enum.FollowKind = enum.FollowKind.FOLLOWERS,
+    follow_kind: enum.FollowKind = enum.FollowKind.FOLLOWERS,
 ):
-    if kind == enum.FollowKind.FOLLOWERS:
+    if follow_kind == enum.FollowKind.FOLLOWERS:
         attr = "user"
         follows = await model.Follow.filter(target_user_id=user_id).select_related("user")
-    elif kind == enum.FollowKind.FOLLOWINGS:
+    elif follow_kind == enum.FollowKind.FOLLOWINGS:
         attr = "target_user"
         follows = await model.Follow.filter(user_id=user_id).select_related("target_user")
     return [follow.__getattribute__(attr) for follow in follows]
+
+
+@router.delete(
+    path="/{user_id}/follow",
+)
+@atomic()
+async def delete_follow(request: Request, user_id: int):
+    result = await model.Follow.filter(
+        user_id=request.state.token_payload["id"],
+        target_user_id=user_id,
+    ).delete()
+    return result
