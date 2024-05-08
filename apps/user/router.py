@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Request, status, HTTPException
 from tortoise.transactions import atomic
 
 from core.dependency import Auth
-from apps.user import model, dto, enum
+from apps.user import model, dto, enum, util
 
 
 router = APIRouter(
@@ -61,10 +61,24 @@ async def delete_user_me(request: Request):
 
 @router.post(
     path="/{user_id}/follow",
+    responses={
+        status.HTTP_200_OK: {"model": None},
+        status.HTTP_400_BAD_REQUEST: {"model": None},
+        status.HTTP_409_CONFLICT: {"model": None},
+    },
+    description="""
+    요청한 유저가 `user_id`에 해당하는 유저를 팔로우합니다.  
+    - 자기 자신에게 팔로우하면 **400 오류**를 응답합니다.  
+    - 이미 팔로우중인 유저에게 팔로우하면 **409 오류**를 응답합니다.
+    """
 )
 @atomic()
 async def follow_user(request: Request, user_id: int):
-    request_user_id = request.token_payload["id"]
+    request_user_id = request.state.token_payload["id"]
+    if user_id == request_user_id:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST)
+    if await util.check_is_following(request_user_id, user_id):
+        raise HTTPException(status.HTTP_409_CONFLICT)
     await model.Follow.create(
         user_id=request_user_id,
         target_user_id=user_id,

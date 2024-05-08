@@ -20,8 +20,8 @@ router = APIRouter(
     "",
     response_model=dto.TokenResponse,
     responses={
-        200: {"model": dto.TokenResponse},
-        201: {"model": dto.TokenResponse},
+        status.HTTP_200_OK: {"model": dto.TokenResponse},
+        status.HTTP_201_CREATED: {"model": dto.TokenResponse},
     },
     description="""
     로그인/회원가입 통합 API 입니다.  
