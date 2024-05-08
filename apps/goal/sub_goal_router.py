@@ -60,12 +60,12 @@ async def update_sub_goal(
     sub_goal_id: int,
     form: dto.SubGoalForm,
 ):
-    request_user_id = request.state.token_payload["id"]
     sub_goal = await model.SubGoal.get(
         id=sub_goal_id,
-        user_id=request_user_id,
+        user_id=request.state.token_payload["id"],
     )
     await sub_goal.update_from_dict(form.__dict__)
+    await sub_goal.save()
     return dto.SubGoalRepsonse.from_orm(sub_goal)
 
 

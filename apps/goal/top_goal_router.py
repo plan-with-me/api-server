@@ -57,6 +57,7 @@ async def update_top_goal(
         user_id=request.state.token_payload["id"],
     )
     await top_goal.update_from_dict(form.__dict__)
+    await top_goal.save()
     return dto.TopGoalResponse.from_orm(top_goal)
 
 
