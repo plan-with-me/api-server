@@ -9,7 +9,7 @@ from apps.user import util as user_util
 
 router = APIRouter(
     prefix="/sub-goals",
-    tags=["Sub Goals"],
+    tags=["Private Goals", "Sub Goals"],
     dependencies=[Depends(Auth())],
 )
 
@@ -46,7 +46,10 @@ async def create_sub_goal(
 )
 async def get_my_sub_goals(request: Request, user_id: int=None):
     request_user_id = request.state.token_payload["id"]
-    query_set = model.SubGoal.filter(user_id=user_id if user_id else request_user_id)
+    query_set = model.SubGoal.filter(
+        user_id=user_id if user_id else request_user_id,
+        top_goal__calendar_id=None,
+    )
     if user_id and user_id != request_user_id:
         query_set = query_set.filter(top_goal__show_scope__not=enum.ShowScope.ME)
         if not await user_util.check_is_following(request_user_id, user_id):

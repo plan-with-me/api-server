@@ -9,7 +9,7 @@ from apps.user import util as user_util
 
 router = APIRouter(
     prefix="/top-goals",
-    tags=["Top Goals"],
+    tags=["Private Goals", "Top Goals"],
     dependencies=[Depends(Auth())]
 )
 
@@ -38,9 +38,12 @@ async def create_top_goal(
     본인의 상위 목표를 조회할 경우 `user_id` 파라미터를 포함하지 않고 요청합니다.
     """,
 )
-async def get_top_goals(request: Request, user_id: str=None):
+async def get_top_goals(request: Request, user_id: int=None):
     request_user_id = request.state.token_payload["id"]
-    query_set = model.TopGoal.filter(user_id=user_id if user_id else request_user_id)
+    query_set = model.TopGoal.filter(
+        user_id=user_id if user_id else request_user_id,
+        calendar_id=None,
+    )
     if user_id and user_id != request_user_id:
         query_set = query_set.filter(show_scope__not=enum.ShowScope.ME)
         if not await user_util.check_is_following(request_user_id, user_id):

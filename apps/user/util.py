@@ -1,4 +1,4 @@
-from apps.user import model, enum
+from apps.user import model
 
 
 async def check_is_following(
@@ -9,3 +9,10 @@ async def check_is_following(
         user_id=request_user_id,
         target_user_id=target_user_id,
     ).exists()
+
+
+async def bulk_check_is_following(
+    request_user_id: int,
+    target_user_id_list: list[int],
+):
+    pass
