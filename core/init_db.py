@@ -30,10 +30,50 @@ async def dummy_data():
                 name="Test user 2",
             ),
             user_model.User(
+                uid="test3",
+                social_type="google",
+                name="Test user 3",
+            ),
+            user_model.User(
+                uid="test4",
+                social_type="google",
+                name="Test user 4",
+            ),
+            user_model.User(
+                uid="test5",
+                social_type="google",
+                name="Test user 5",
+            ),
+            user_model.User(
                 uid="3463192767", # 경천님
                 social_type="kakao",
                 name="스트릿출신 순두부",
             )
+        ]
+    )
+
+    await user_model.Follow.bulk_create(
+        objects=[
+            user_model.Follow(
+                user_id=2,
+                target_user_id=1,
+            ),
+            user_model.Follow(
+                user_id=3,
+                target_user_id=1,
+            ),
+            user_model.Follow(
+                user_id=4,
+                target_user_id=1,
+            ),
+            user_model.Follow(
+                user_id=1,
+                target_user_id=2,
+            ),
+            user_model.Follow(
+                user_id=1,
+                target_user_id=3,
+            ),
         ]
     )
 

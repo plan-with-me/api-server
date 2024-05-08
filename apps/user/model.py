@@ -10,3 +10,8 @@ class User(BaseEntity):
     name = fields.CharField(max_length=16)
     introduction = fields.TextField(null=True)
     image = fields.CharField(max_length=256, null=True)
+
+
+class Follow(BaseEntity):
+    user = fields.ForeignKeyField(model_name="models.User", related_name="followings")
+    target_user = fields.ForeignKeyField(model_name="models.User", related_name="followers")

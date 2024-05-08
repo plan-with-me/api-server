@@ -2,31 +2,31 @@ from pydantic import BaseModel
 from datetime import datetime
 
 from core.base_dto import BaseResponse
-from apps.goal import model
+from apps.goal import enum
 
 
 class TopGoalResponse(BaseResponse):
     name: str
     color: str
-    status: model.GoalStatus
+    status: enum.GoalStatus
     show_scope: str
 
 
 class TopGoalForm(BaseModel):
     name: str
     color: str = "skyblue"
-    status: model.GoalStatus
-    show_scope: model.ShowScope = model.ShowScope.ME
+    status: enum.GoalStatus
+    show_scope: enum.ShowScope = enum.ShowScope.ME
 
 
 class SubGoalRepsonse(BaseResponse):
     top_goal_id: int
     name: str
     plan_datetime: datetime
-    status: model.GoalStatus
+    status: enum.GoalStatus
 
 
 class SubGoalForm(BaseModel):
     name: str
     plan_datetime: datetime
-    status: model.GoalStatus
+    status: enum.GoalStatus

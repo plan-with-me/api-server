@@ -1,18 +1,7 @@
-from enum import Enum
 from tortoise import fields
 
 from core.base_orm import BaseEntity
-
-
-class ShowScope(Enum):
-    ME = "me"
-    FOLLWERS = "followers"
-    ALL = "all"
-
-
-class GoalStatus(Enum):
-    INCOMPLETE = "incomplete"
-    COMPLETE = "complete"
+from apps.goal.enum import GoalStatus, ShowScope
 
 
 class TopGoal(BaseEntity):
