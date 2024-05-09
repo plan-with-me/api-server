@@ -38,7 +38,7 @@ async def create_top_goal(
     본인의 상위 목표를 조회할 경우 `user_id` 파라미터를 포함하지 않고 요청합니다.
     """,
 )
-async def get_top_goals(request: Request, user_id: int=None):
+async def get_top_goals(request: Request, user_id: int = None):
     request_user_id = request.state.token_payload["id"]
     query_set = model.TopGoal.filter(
         user_id=user_id if user_id else request_user_id,
@@ -66,7 +66,7 @@ async def update_top_goal(
         id=top_goal_id,
         user_id=request.state.token_payload["id"],
     )
-    await top_goal.update_from_dict(form.__dict__)
+    top_goal.update_from_dict(form.__dict__)
     await top_goal.save()
     return top_goal
 

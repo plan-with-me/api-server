@@ -19,3 +19,4 @@ class SubGoal(BaseEntity):
     status = fields.CharEnumField(GoalStatus, max_length=16, default=GoalStatus.INCOMPLETE)
     user = fields.ForeignKeyField(model_name="models.User", related_name="sub_goals")
     top_goal = fields.ForeignKeyField(model_name="models.TopGoal", related_name="sub_goals")
+    calendar = fields.ForeignKeyField(model_name="models.Calendar", related_name="sub_goals", null=True)

@@ -2,23 +2,25 @@ from apps.calendar import model
 from apps.user import model as user_model
 
 
-async def add_users_on_calendar(
+async def set_users_on_calendar(
     calendar_id: int, 
-    user_ids: list[int],
+    new_user_ids: list[int],
     validate_strictly: bool = True,
 ) -> None:
-    user_ids = list(set(user_ids))
+    new_user_ids = list(set(new_user_ids))
     if validate_strictly:
         calendar_users = await model.CalendarUser.filter(id=calendar_id).all()
-        exist_member_ids = [calendar_user.user_id for calendar_user in calendar_users]
-        user_ids = [user_id for user_id in user_ids if user_id not in exist_member_ids]
+        exist_user_ids = [calendar_user.user_id for calendar_user in calendar_users]
+        new_user_ids = [user_id for user_id in new_user_ids if user_id not in exist_user_ids]
+        delete_user_ids = [user_id for user_id in exist_user_ids if user_id not in new_user_ids]
+        await model.CalendarUser.filter(user_id__in=delete_user_ids).delete()
     
     await model.CalendarUser.bulk_create([
         model.CalendarUser(
             user_id=user_id,
             calendar_id=calendar_id,
         )
-        for user_id in user_ids
+        for user_id in new_user_ids
     ])
 
 
