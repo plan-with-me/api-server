@@ -104,3 +104,7 @@ async def dummy_data():
         user_id=2,
         top_goal_id=2,
     )
+
+    import apps.calendar.model as calendar_model
+    await calendar_model.Calendar.create(name="Test Calendar 1")
+    await calendar_model.CalendarUser.create(user_id=1, calendar_id=1)
