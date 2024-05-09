@@ -46,7 +46,7 @@ async def authentication(
         social_type=social_type.value,
     )
     if not user:
-        random_nickname = NicknameGenerator.generate_random_nickname(count=1)[0]
+        random_nickname = await NicknameGenerator.generate_random_nickname(count=1)[0]
         status_code = status.HTTP_201_CREATED
         user = await model.User.create(
             uid=uid,
