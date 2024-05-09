@@ -47,6 +47,14 @@ async def get_calendars(
     pass
 
 
+@router.get(
+    path="/{calendar_id}",
+    response_model=dto.CalendarResponse,
+)
+async def get_calendar(request: Request):
+    pass
+
+
 @router.put(
     path="/{calendar_id}",
 )
