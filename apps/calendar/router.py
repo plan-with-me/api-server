@@ -32,8 +32,12 @@ async def create_calendar(request: Request, form: dto.CalendarForm):
 @router.get(
     path="",
     response_model=list[dto.CalendarSimpleResponse],
+    description="""
+    특정 유저의 공유 달력을 모두 조회합니다.
+    본인의 공유 달력을 조회할 경우 `user_id` 파라미터를 포함하지 않고 요청합니다.
+    """
 )
-async def get_calendar_list(request: Request, user_id: int=None):
+async def get_calendar_list(request: Request, user_id: int = None):
     user_id = user_id if user_id else request.state.token_payload["id"]
     calendar_users = await model.CalendarUser.filter(user_id=user_id).select_related("calendar").all()
     return [calendar_user.calendar for calendar_user in calendar_users]
@@ -43,6 +47,10 @@ async def get_calendar_list(request: Request, user_id: int=None):
     path="/{calendar_id}",
     dependencies=[Depends(CalendarPermission(get_calendar=True))],
     response_model=dto.CalendarResponse,
+    description="""
+    특정 공유 달력의 정보를 조회합니다.
+    추가로 공유 달력 내 구성원 목록을 포함합니다.
+    """
 )
 async def get_calendar_detail(request: Request, calendar_id: int):
     calendar = request.state.calendar_user.calendar

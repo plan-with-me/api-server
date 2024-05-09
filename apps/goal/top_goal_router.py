@@ -34,7 +34,7 @@ async def create_top_goal(
     path="",
     response_model=list[dto.TopGoalResponse],
     description="""
-    특정 유저의 상위 목표를 조회합니다.  
+    특정 유저의 상위 목표를 모두 조회합니다.  
     본인의 상위 목표를 조회할 경우 `user_id` 파라미터를 포함하지 않고 요청합니다.
     """,
 )
