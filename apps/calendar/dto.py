@@ -5,6 +5,11 @@ from core.base_dto import BaseResponse
 from apps.user import dto as user_dto
 
 
+class CalendarSimpleResponse(BaseResponse):
+    name: str
+    image: str
+
+
 class CalendarResponse(BaseResponse):
     name: str
     image: str
