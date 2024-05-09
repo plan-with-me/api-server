@@ -9,7 +9,7 @@ from apps.user import util as user_util
 
 router = APIRouter(
     prefix="/top-goals",
-    tags=["Private Goals"],
+    tags=["User Goals"],
     dependencies=[Depends(Auth())]
 )
 
