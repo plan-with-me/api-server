@@ -38,7 +38,7 @@ async def authentication(
         uid = user_info["email"]
     elif social_type == enum.SocialType.KAKAO:
         user_info = OAuthClient.verify_kakao_token(credentials.id_token)
-        uid = user_info["sub"]
+        uid = user_info["kakao_account"]["email"]
     
     status_code = status.HTTP_200_OK
     user = await model.User.get_or_none(
