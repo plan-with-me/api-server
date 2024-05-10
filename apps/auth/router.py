@@ -57,6 +57,7 @@ async def authentication(
 
     token = build_token(
         id=user.id,
+        email=user.uid,
         social_type=social_type.value,
     )
 

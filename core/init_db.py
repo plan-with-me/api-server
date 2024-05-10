@@ -44,11 +44,6 @@ async def dummy_data():
                 social_type="google",
                 name="Test user 5",
             ),
-            user_model.User(
-                uid="3463192767", # 경천님
-                social_type="kakao",
-                name="스트릿출신 순두부",
-            )
         ]
     )
 
