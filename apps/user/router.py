@@ -43,7 +43,7 @@ async def update_user_profile(
     if request.state.token_payload["id"] != user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     user = await model.User.get(id=user_id)
-    await user.update_from_dict(form.__dict__)
+    user.update_from_dict(form.__dict__)
     await user.save()
     return user
 

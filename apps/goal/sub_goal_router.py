@@ -9,7 +9,7 @@ from apps.user import util as user_util
 
 router = APIRouter(
     prefix="/sub-goals",
-    tags=["Private Goals", "Sub Goals"],
+    tags=["User Goals"],
     dependencies=[Depends(Auth())],
 )
 
@@ -40,15 +40,15 @@ async def create_sub_goal(
     path="",
     response_model=list[dto.SubGoalRepsonse],
     description="""
-    특정 유저의 하위 목표를 조회합니다.  
+    특정 유저의 하위 목표를 모두 조회합니다.  
     본인의 하위 목표를 조회할 경우 `user_id` 파라미터를 포함하지 않고 요청합니다.
     """,
 )
-async def get_my_sub_goals(request: Request, user_id: int=None):
+async def get_sub_goals(request: Request, user_id: int = None):
     request_user_id = request.state.token_payload["id"]
     query_set = model.SubGoal.filter(
         user_id=user_id if user_id else request_user_id,
-        top_goal__calendar_id=None,
+        calendar_id=None,
     )
     if user_id and user_id != request_user_id:
         query_set = query_set.filter(top_goal__show_scope__not=enum.ShowScope.ME)
@@ -72,7 +72,7 @@ async def update_sub_goal(
         id=sub_goal_id,
         user_id=request.state.token_payload["id"],
     )
-    await sub_goal.update_from_dict(form.__dict__)
+    sub_goal.update_from_dict(form.__dict__)
     await sub_goal.save()
     return sub_goal
 

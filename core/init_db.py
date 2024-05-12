@@ -44,11 +44,6 @@ async def dummy_data():
                 social_type="google",
                 name="Test user 5",
             ),
-            user_model.User(
-                uid="3463192767", # 경천님
-                social_type="kakao",
-                name="스트릿출신 순두부",
-            )
         ]
     )
 
@@ -104,3 +99,7 @@ async def dummy_data():
         user_id=2,
         top_goal_id=2,
     )
+
+    import apps.calendar.model as calendar_model
+    await calendar_model.Calendar.create(name="Test Calendar 1")
+    await calendar_model.CalendarUser.create(user_id=1, calendar_id=1)
