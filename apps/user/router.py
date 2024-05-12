@@ -13,6 +13,17 @@ router = APIRouter(
 
 
 @router.get(
+    path="",
+    response_model=list[dto.UserResponse],
+)
+async def search_user(email: str):
+    users = await model.User.filter(
+        uid__contains=email,
+    ).limit(5)
+    return users
+
+
+@router.get(
     path="/me",
     response_model=dto.UserResponse,
 )
@@ -68,38 +79,62 @@ async def delete_user_me(request: Request):
     },
     description="""
     요청한 유저가 `user_id`에 해당하는 유저를 팔로우합니다.  
-    - 자기 자신에게 팔로우하면 **400 오류**를 응답합니다.  
-    - 이미 팔로우중인 유저에게 팔로우하면 **409 오류**를 응답합니다.
+    - 자기 자신 또는 존재하지 않는 유저를 팔로우할 경우 **400 오류**를 응답합니다.  
+    - 이미 해당 유저에게 팔로우 요청을 보냈거나 팔로우중이라면 **409 오류**를 응답합니다.
     """
 )
 @atomic()
-async def follow_user(request: Request, user_id: int):
+async def request_follow_user(request: Request, user_id: int):
     request_user_id = request.state.token_payload["id"]
     if user_id == request_user_id:
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
-    if await util.check_is_following(request_user_id, user_id):
-        raise HTTPException(status.HTTP_409_CONFLICT)
-    await model.Follow.create(
+    
+    follow = await model.Follow.get_or_none(
         user_id=request_user_id,
         target_user_id=user_id,
     )
-    return None
+    if follow:
+        raise HTTPException(status.HTTP_409_CONFLICT)
+    else:
+        await model.Follow.create(
+            user_id=request_user_id,
+            target_user_id=user_id,
+        )
+    return True
 
 
 @router.get(
-    path="/{user_id}/{follow_kind}",
+    path="/{user_id}/follows",
     response_model=list[dto.UserResponse],
+    description="""
+    특정 유저의 팔로우 정보를 조회합니다.  
+    **pending** 상태인 팔로우 정보는 본인만 확인할 수 있습니다.
+    """
 )
 async def get_follows(
+    request: Request,
     user_id: int,
     follow_kind: enum.FollowKind = enum.FollowKind.FOLLOWERS,
+    follow_status: enum.FollowStatus = enum.FollowStatus.ACCEPTED,
 ):
+    if (
+        follow_status == enum.FollowStatus.PENDING and 
+        request.state.token_payload["id"] != user_id
+    ):
+        raise HTTPException(status.HTTP_403_FORBIDDEN)
+    
     if follow_kind == enum.FollowKind.FOLLOWERS:
         attr = "user"
-        follows = await model.Follow.filter(target_user_id=user_id).select_related("user")
+        follows = await model.Follow.filter(
+            target_user_id=user_id,
+            status=follow_status,
+        ).select_related(attr)
     elif follow_kind == enum.FollowKind.FOLLOWINGS:
         attr = "target_user"
-        follows = await model.Follow.filter(user_id=user_id).select_related("target_user")
+        follows = await model.Follow.filter(
+            user_id=user_id,
+            status=follow_status,
+        ).select_related(attr)
     return [follow.__getattribute__(attr) for follow in follows]
 
 

@@ -2,6 +2,7 @@ from tortoise import fields
 
 from core.base_orm import BaseEntity
 from apps.auth.enum import SocialType
+from apps.user.enum import FollowStatus
 
 
 class User(BaseEntity):
@@ -15,3 +16,4 @@ class User(BaseEntity):
 class Follow(BaseEntity):
     user = fields.ForeignKeyField(model_name="models.User", related_name="followings")
     target_user = fields.ForeignKeyField(model_name="models.User", related_name="followers")
+    status = fields.CharEnumField(enum_type=FollowStatus, max_length=16, default=FollowStatus.PENDING)

@@ -15,35 +15,17 @@ async def schema_and_tables(safe: bool=True):
 
 
 async def dummy_data():
+    import random
     from datetime import datetime
     from apps.user import model as user_model
     await user_model.User.bulk_create(
         objects=[
             user_model.User(
-                uid="test1",
-                social_type="kakao",
-                name="Test user 1",
-            ),
-            user_model.User(
-                uid="test2",
-                social_type="google",
-                name="Test user 2",
-            ),
-            user_model.User(
-                uid="test3",
-                social_type="google",
-                name="Test user 3",
-            ),
-            user_model.User(
-                uid="test4",
-                social_type="google",
-                name="Test user 4",
-            ),
-            user_model.User(
-                uid="test5",
-                social_type="google",
-                name="Test user 5",
-            ),
+                uid=f"test{idx}",
+                social_type=random.choice(["kakao", "google"]),
+                name=f"Test user {idx}",
+            )
+            for idx in range(1, 11)
         ]
     )
 
@@ -52,6 +34,7 @@ async def dummy_data():
             user_model.Follow(
                 user_id=2,
                 target_user_id=1,
+                status="accepted",
             ),
             user_model.Follow(
                 user_id=3,
@@ -64,10 +47,16 @@ async def dummy_data():
             user_model.Follow(
                 user_id=1,
                 target_user_id=2,
+                status="accepted",
             ),
             user_model.Follow(
                 user_id=1,
                 target_user_id=3,
+                status="accepted",
+            ),
+            user_model.Follow(
+                user_id=1,
+                target_user_id=4,
             ),
         ]
     )
