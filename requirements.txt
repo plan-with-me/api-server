@@ -34,6 +34,7 @@ pydantic_core==2.16.3
 PyJWT==2.8.0
 pypika-tortoise==0.1.6
 python-dotenv==1.0.1
+python-multipart==0.0.9
 pytz==2024.1
 PyYAML==6.0.1
 requests==2.31.0
