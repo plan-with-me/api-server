@@ -15,10 +15,12 @@ services:
       - 8000:8000
     volumes:
       - ./:/home
+      - ./nas:/nas
     working_dir: /home
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
+        mkdir /nas
         pip install --upgrade pip
         pip install --no-cache-dir --upgrade -r requirements.txt
         uvicorn main:app --reload --host=0.0.0.0 --port 8000

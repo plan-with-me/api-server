@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Request, status, HTTPException
 from tortoise.transactions import atomic
 
-from core.dependency import Auth, CalendarPermission
+from core.dependencies import Auth, CalendarPermission
 from apps.goal import model as goal_model
 from apps.goal import dto as goal_dto
 

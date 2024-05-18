@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Request, status, HTTPException
 from tortoise.transactions import atomic
 
-from core.dependency import Auth
+from core.dependencies import Auth
 from apps.user import model, dto, enum, util
 
 

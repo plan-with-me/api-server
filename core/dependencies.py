@@ -26,7 +26,7 @@ class Auth(HTTPBearer):
             request.state.token_payload = token_payload
 
         except (KeyError, ValueError, PyJWTError):
-            raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+           raise HTTPException(status.HTTP_401_UNAUTHORIZED)
 
 
 class CalendarPermission:
