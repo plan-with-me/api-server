@@ -37,9 +37,11 @@ async def authentication(
     if social_type == enum.SocialType.GOOGLE:
         user_info = OAuthClient.verify_google_token(credentials.id_token)
         uid = user_info["email"]
+        name = user_info["name"]
     elif social_type == enum.SocialType.KAKAO:
         user_info = OAuthClient.verify_kakao_token(credentials.id_token)
         uid = user_info["email"]
+        name = user_info["nickname"]
     
     status_code = status.HTTP_200_OK
     user = await model.User.get_or_none(
@@ -49,14 +51,14 @@ async def authentication(
     if not user:
         try:
             random_nickname_response = await NicknameGenerator.generate_random_nickname(count=1)
-            random_nickname = random_nickname_response[0]
+            nickname = random_nickname_response[0]
         except:
-            random_nickname = uid.split("@")[0]
+            nickname = name
         status_code = status.HTTP_201_CREATED
         user = await model.User.create(
             uid=uid,
             social_type=social_type.value,
-            name=random_nickname,
+            name=nickname,
         )
 
     token = build_token(
