@@ -33,38 +33,42 @@ async def authentication(
     social_type: enum.SocialType, 
     credentials: dto.SocialLoginCredentials,
 ):
-    if social_type == enum.SocialType.GOOGLE:
-        user_info = OAuthClient.verify_google_token(credentials.id_token)
-        uid = user_info["email"]
-    elif social_type == enum.SocialType.KAKAO:
-        user_info = OAuthClient.verify_kakao_token(credentials.id_token)
-        uid = user_info["email"]
-    
-    status_code = status.HTTP_200_OK
-    user = await model.User.get_or_none(
-        uid=uid,
-        social_type=social_type.value,
-    )
-    if not user:
-        random_nickname_response = await NicknameGenerator.generate_random_nickname(count=1)
-        random_nickname = random_nickname_response[0]
-        status_code = status.HTTP_201_CREATED
-        user = await model.User.create(
+    try:
+        if social_type == enum.SocialType.GOOGLE:
+            user_info = OAuthClient.verify_google_token(credentials.id_token)
+            uid = user_info["email"]
+        elif social_type == enum.SocialType.KAKAO:
+            user_info = OAuthClient.verify_kakao_token(credentials.id_token)
+            uid = user_info["email"]
+        
+        status_code = status.HTTP_200_OK
+        user = await model.User.get_or_none(
             uid=uid,
             social_type=social_type.value,
-            name=random_nickname,
+        )
+        if not user:
+            random_nickname_response = await NicknameGenerator.generate_random_nickname(count=1)
+            random_nickname = random_nickname_response[0]
+            status_code = status.HTTP_201_CREATED
+            user = await model.User.create(
+                uid=uid,
+                social_type=social_type.value,
+                name=random_nickname,
+            )
+
+        token = build_token(
+            id=user.id,
+            email=user.uid,
+            social_type=social_type.value,
         )
 
-    token = build_token(
-        id=user.id,
-        email=user.uid,
-        social_type=social_type.value,
-    )
-
-    return JSONResponse(
-        status_code=status_code,
-        content=dto.TokenResponse(access_token=token).__dict__,
-    )
+        return JSONResponse(
+            status_code=status_code,
+            content=dto.TokenResponse(access_token=token).__dict__,
+        )
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
 
 
 @router.get("/test")
