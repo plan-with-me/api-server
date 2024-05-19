@@ -31,9 +31,9 @@ router_modules, model_modules = [], []
 for app_name in os.listdir("apps"):
     for module_name in os.listdir(f"apps/{app_name}"):
         if "router.py" in module_name:
-            router_modules.append(f"apps.{app_name}.{module_name.split(".")[0]}")
+            router_modules.append(f"apps.{app_name}.{module_name.split('.')[0]}")
         elif "model.py" in module_name:
-            model_modules.append(f"apps.{app_name}.{module_name.split(".")[0]}")
+            model_modules.append(f"apps.{app_name}.{module_name.split('.')[0]}")
 
 for router_module in router_modules:
     module = importlib.import_module(router_module)
