@@ -12,6 +12,13 @@ class TopGoalResponse(BaseResponse):
     show_scope: str
 
 
+class TopGoalAchievementRateResponse(BaseResponse):
+    name: str
+    color: str
+    sub_goal_count: int = 0
+    complete_count: int = 0
+
+
 class TopGoalForm(BaseModel):
     name: str
     color: str = "skyblue"

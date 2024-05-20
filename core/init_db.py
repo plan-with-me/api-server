@@ -62,31 +62,75 @@ async def dummy_data():
     )
 
     from apps.goal import model as goal_model
+    for idx in range(1, 4):
+        await goal_model.TopGoal.create(
+            name=f"테스트 상위목표 {idx}",
+            user_id=1,
+        )
     await goal_model.TopGoal.create(
         name="Test topgoal 1",
-        user_id=1
+        user_id=2,
+        show_scope="all",
     )
     await goal_model.TopGoal.create(
         name="Test topgoal 2",
-        user_id=2
+        user_id=3,
     )
-    for idx in range(1, 11):
-        await goal_model.TopGoal.create(
-            name=f"테스트 상위목표 {idx}",
-            user_id=3,
-        )
 
+    from apps.goal.enum import GoalStatus
     await goal_model.SubGoal.create(
         name="Test subgoal1",
         plan_datetime=datetime(2024, 12, 30),
-        user_id=1,
-        top_goal_id=1,
+        user_id=2,
+        top_goal_id=4,
     )
     await goal_model.SubGoal.create(
         name="Test subgoal2",
         plan_datetime=datetime(2024, 12, 30),
-        user_id=2,
+        user_id=3,
+        top_goal_id=5,
+    )
+    await goal_model.SubGoal.create(
+        name="하위목표 1",
+        plan_datetime=datetime(2024, 12, 30),
+        user_id=1,
+        top_goal_id=1,
+        status=GoalStatus.COMPLETE,
+    )
+    await goal_model.SubGoal.create(
+        name="하위목표 2",
+        plan_datetime=datetime(2024, 12, 30),
+        user_id=1,
+        top_goal_id=1,
+        status=GoalStatus.COMPLETE,
+    )
+    await goal_model.SubGoal.create(
+        name="하위목표 3",
+        plan_datetime=datetime(2024, 12, 30),
+        user_id=1,
+        top_goal_id=1,
+        status=GoalStatus.COMPLETE,
+    )
+    await goal_model.SubGoal.create(
+        name="하위목표 4",
+        plan_datetime=datetime(2024, 12, 30),
+        user_id=1,
+        top_goal_id=1,
+        status=GoalStatus.INCOMPLETE,
+    )
+    await goal_model.SubGoal.create(
+        name="하위목표 5",
+        plan_datetime=datetime(2024, 12, 30),
+        user_id=1,
         top_goal_id=2,
+        status=GoalStatus.INCOMPLETE,
+    )
+    await goal_model.SubGoal.create(
+        name="하위목표 6",
+        plan_datetime=datetime(2024, 12, 30),
+        user_id=1,
+        top_goal_id=2,
+        status=GoalStatus.INCOMPLETE,
     )
 
     import apps.calendar.model as calendar_model
