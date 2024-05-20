@@ -56,7 +56,7 @@ async def get_top_goals(request: Request, user_id: int = None):
     path="/achievement-rates",
     response_model=list[dto.TopGoalAchievementRateResponse],
     description="""
-    특정 유저의 상위 목표 달성률을 조회합니다.
+    특정 유저의 상위 목표 달성률을 조회합니다.(전체 기간)
     본인의 상위 목표를 조회할 경우 `user_id` 파라미터를 포함하지 않고 요청합니다.
     """
 )

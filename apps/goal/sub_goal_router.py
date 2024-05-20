@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Request, Depends, status, HTTPException
 
+from datetime import date
 from tortoise.transactions import atomic
 
 from core.dependencies import Auth
@@ -40,15 +41,21 @@ async def create_sub_goal(
     path="",
     response_model=list[dto.SubGoalRepsonse],
     description="""
-    특정 유저의 하위 목표를 모두 조회합니다.  
-    본인의 하위 목표를 조회할 경우 `user_id` 파라미터를 포함하지 않고 요청합니다.
+    특정 유저의 하위 목표를 월별로 조회합니다.  
+    본인의 하위 목표를 조회할 경우 `user_id` 파라미터를 포함하지 않고 요청합니다.   
+    `plan_date` 파라미터는 yyyy-mm 형태로 입력하며 입력하지 않을 경우 기본값으로 현재 년-월이 입력됩니다. 
     """,
 )
-async def get_sub_goals(request: Request, user_id: int = None):
+async def get_sub_goals(
+    request: Request, 
+    user_id: int = None,
+    plan_date: str = date.today().strftime("%Y-%m"),
+):
     request_user_id = request.state.token_payload["id"]
     query_set = model.SubGoal.filter(
         user_id=user_id if user_id else request_user_id,
         calendar_id=None,
+        plan_datetime__startswith=plan_date
     )
     if user_id and user_id != request_user_id:
         query_set = query_set.filter(top_goal__show_scope__not=enum.ShowScope.ME)
