@@ -7,6 +7,8 @@ from apps.file.model import File
 from apps.file.dto import FileResponse
 
 
+BASE_STATIC_DIR = "/nas"
+
 router = APIRouter(
     prefix="/files",
     tags=["File"],
@@ -23,12 +25,14 @@ router = APIRouter(
 )
 @atomic()
 async def upload_file(request: Request, file: UploadFile):
-    filename, ext = file.filename.rsplit(".", 1)
+    ext = file.filename.split(".")[-1]
     file_model = await File.create(
         original_filename=file.filename,
         user_id=request.state.token_payload["id"],
     )
-    async with aiofiles.open(f"/nas/{file_model.id}.{ext}", mode="wb") as f:
+    async with aiofiles.open(f"/{BASE_STATIC_DIR}/{file_model.id}.{ext}", mode="wb") as f:
         while content := await file.read(1024):
             await f.write(content)
+        file_model.saved_filename = f"{file_model.id}.{ext}"
+        await file_model.save()
     return file_model
