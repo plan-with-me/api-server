@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, Request, status, HTTPException
+
+from datetime import date
 from tortoise.transactions import atomic
 
 from core.dependencies import Auth, CalendarPermission
@@ -39,9 +41,19 @@ async def create_sub_goal(
 @router.get(
     path="",
     response_model=list[goal_dto.SubGoalRepsonse],
+    description="""
+    공유 달력의 하위 목표를 월별로 조회합니다.  
+    `plan_date` 파라미터는 yyyy-mm 형태로 입력하며 입력하지 않을 경우 기본값으로 현재 년-월이 입력됩니다. 
+    """,
 )
-async def get_sub_goals(calendar_id: int):
-    sub_goals = await goal_model.SubGoal.filter(calendar_id=calendar_id).all()
+async def get_sub_goals(
+    calendar_id: int,
+    plan_date: str = date.today().strftime("%Y-%m"),
+):
+    sub_goals = await goal_model.SubGoal.filter(
+        calendar_id=calendar_id,
+        plan_datetime__startswith=plan_date,
+    ).all()
     return sub_goals
 
 
