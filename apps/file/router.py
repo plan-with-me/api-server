@@ -34,7 +34,7 @@ async def upload_file(request: Request, file: UploadFile):
     async with aiofiles.open(f"/{BASE_NAS_LOC}/{file_model.id}.{ext}", mode="wb") as f:
         while content := await file.read(1024):
             await f.write(content)
-        file_model.saved_location = f"/{BASE_NAS_LOC}/{file_model.id}.{ext}"
-        file_model.client_location = f"/{BASE_CLIENT_LOC}/{file_model.id}.{ext}"
+        file_model.saved_location = f"{BASE_NAS_LOC}/{file_model.id}.{ext}"
+        file_model.client_location = f"{BASE_CLIENT_LOC}/{file_model.id}.{ext}"
         await file_model.save()
     return file_model
