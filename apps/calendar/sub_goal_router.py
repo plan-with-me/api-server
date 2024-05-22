@@ -59,7 +59,7 @@ async def get_sub_goals(
 
 @router.put(
     path="/{sub_goal_id}",
-    response_model=goal_dto.TopGoalResponse,
+    response_model=goal_dto.SubGoalRepsonse,
 )
 @atomic()
 async def update_sub_goal(
