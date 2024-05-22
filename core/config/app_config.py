@@ -12,7 +12,7 @@ from main import app
 
 origins = [
     "http://localhost:3000",
-    # TODO Add client origin
+    "https://pwm.ssc.co.kr",
 ]
 
 app.add_middleware(
