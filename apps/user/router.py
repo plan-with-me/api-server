@@ -71,7 +71,7 @@ async def delete_user_me(request: Request):
 
 
 @router.post(
-    path="/{user_id}/follow",
+    path="/{user_id}/follows",
     responses={
         status.HTTP_200_OK: {"model": None},
         status.HTTP_400_BAD_REQUEST: {"model": None},
@@ -114,32 +114,32 @@ async def request_follow_user(request: Request, user_id: int):
 async def get_follows(
     request: Request,
     user_id: int,
-    follow_kind: enum.FollowKind = enum.FollowKind.FOLLOWERS,
-    follow_status: enum.FollowStatus = enum.FollowStatus.ACCEPTED,
+    kind: enum.FollowKind = enum.FollowKind.FOLLOWERS,
+    status: enum.FollowStatus = enum.FollowStatus.ACCEPTED,
 ):
     if (
-        follow_status == enum.FollowStatus.PENDING and 
+        status == enum.FollowStatus.PENDING and 
         request.state.token_payload["id"] != user_id
     ):
         raise HTTPException(status.HTTP_403_FORBIDDEN)
     
-    if follow_kind == enum.FollowKind.FOLLOWERS:
+    if kind == enum.FollowKind.FOLLOWERS:
         attr = "user"
         follows = await model.Follow.filter(
             target_user_id=user_id,
-            status=follow_status,
+            status=status,
         ).select_related(attr)
-    elif follow_kind == enum.FollowKind.FOLLOWINGS:
+    elif kind == enum.FollowKind.FOLLOWINGS:
         attr = "target_user"
         follows = await model.Follow.filter(
             user_id=user_id,
-            status=follow_status,
+            status=status,
         ).select_related(attr)
     return [follow.__getattribute__(attr) for follow in follows]
 
 
 @router.delete(
-    path="/{user_id}/follow",
+    path="/{user_id}/follows",
 )
 @atomic()
 async def delete_follow(request: Request, user_id: int):
