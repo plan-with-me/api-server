@@ -16,16 +16,21 @@ router = APIRouter(
 @router.post(
     path="",
     response_model=dto.CalendarSimpleResponse,
+    description="""
+    공유 달력을 생성합니다.   
+    `user_ids`에는 구성원의 유저 id 배열을 입력합니다.   
+    ex) [1, 2, 3, ..]
+    """
 )
 @atomic()
 async def create_calendar(request: Request, form: dto.CalendarForm):
-    form.user_ids.append(request.state.token_payload["id"])
     calendar = await model.Calendar.create(**form.__dict__)
-    await util.set_users_on_calendar(
-        calendar_id=calendar.id,
-        new_user_ids=form.user_ids,
-        validate_strictly=False,
-    )
+    # form.user_ids.append(request.state.token_payload["id"])
+    # await util.set_users_on_calendar(
+    #     calendar_id=calendar.id,
+    #     new_user_ids=form.user_ids,
+    #     validate_strictly=False,
+    # )
     return calendar
 
 
@@ -33,7 +38,7 @@ async def create_calendar(request: Request, form: dto.CalendarForm):
     path="",
     response_model=list[dto.CalendarSimpleResponse],
     description="""
-    특정 유저의 공유 달력을 모두 조회합니다.
+    특정 유저의 공유 달력을 모두 조회합니다.   
     본인의 공유 달력을 조회할 경우 `user_id` 파라미터를 포함하지 않고 요청합니다.
     """
 )
@@ -43,28 +48,13 @@ async def get_calendar_list(request: Request, user_id: int = None):
     return [calendar_user.calendar for calendar_user in calendar_users]
 
 
-@router.get(
-    path="/{calendar_id}",
-    dependencies=[Depends(CalendarPermission(get_calendar=True))],
-    response_model=dto.CalendarResponse,
-    description="""
-    특정 공유 달력의 정보를 조회합니다.
-    추가로 공유 달력 내 구성원 목록을 포함합니다.
-    """
-)
-async def get_calendar_detail(request: Request, calendar_id: int):
-    calendar = request.state.calendar_user.calendar
-    users = await util.get_calendar_members(calendar_id)
-    return dto.CalendarResponse(
-        **calendar.__dict__,
-        users=[user_dto.UserResponse.from_orm(user) for user in users]
-    )
-
-
 @router.put(
     path="/{calendar_id}",
     dependencies=[Depends(CalendarPermission(get_calendar=True))],
     response_model=dto.CalendarSimpleResponse,
+    description="""
+    공유 달력 정보를 수정합니다.
+    """
 )
 @atomic()
 async def update_calendar(
@@ -73,13 +63,12 @@ async def update_calendar(
     form: dto.CalendarForm,
 ):
     calendar: model.Calendar = request.state.calendar_user.calendar
-    await util.set_users_on_calendar(
-        calendar_id=calendar_id,
-        new_user_ids=form.user_ids,
-        validate_strictly=True,
-    )
-    await calendar.update_from_dict(form.__dict__)
-    await calendar.save()
+    # await util.set_users_on_calendar(
+    #     calendar_id=calendar_id,
+    #     new_user_ids=form.user_ids,
+    #     validate_strictly=True,
+    # )
+    await calendar.update_from_dict(form.__dict__).save()
     return calendar
 
 
@@ -90,4 +79,63 @@ async def update_calendar(
 @atomic()
 async def delete_calendar(request: Request, calendar_id: int):
     result = await model.Calendar.filter(id=calendar_id).delete()
+    return result
+
+
+@router.get(
+    path="/{calendar_id}/users",
+    dependencies=[Depends(CalendarPermission())],
+    response_model=list[user_dto.UserResponse],
+    description="공유 달력 내 구성원 목록을 조회합니다.",
+)
+async def get_calendar_users(request: Request, calendar_id: int):
+    users = await util.get_calendar_members(calendar_id)
+    return users
+
+
+@router.post(
+    path="/{calendar_id}/users/{user_id}",
+    dependencies=[Depends(CalendarPermission())],
+    description="""
+    공유 달력에 구성원을 추가합니다.   
+    해당 유저가 존재하지 않을 경우 **400 오류**를 응답합니다.   
+    해당 유저가 이미 구성원일 경우 **409 오류**를 응답합니다.
+    """,
+)
+async def add_calendar_user(
+    calendar_id: int,
+    user_id: int,
+):
+    if await model.CalendarUser.exists(
+        calendar_id=calendar_id,
+        user_id=user_id,
+    ):
+        raise HTTPException(status.HTTP_409_CONFLICT)
+    await model.CalendarUser.create(
+        calendar_id=calendar_id,
+        user_id=user_id,
+    )
+    return True
+
+
+@router.delete(
+    path="/{calendar_id}/users/{user_id}",
+    dependencies=[Depends(CalendarPermission(get_calendar=True))],
+    description="""
+    공유 달력에 구성원을 삭제합니다.   
+    해당 유저가 존재하지 않을 경우 **400 오류**를 응답합니다.   
+    해당 유저가 이미 구성원일 경우 **409 오류**를 응답합니다.
+    """
+)
+async def delete_calender_user(
+    request: Request,
+    calendar_id: int,
+    user_id: int,
+):
+    result = await model.CalendarUser.filter(
+        calendar_id=calendar_id,
+        user_id=user_id,
+    ).delete()
+    if not result:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST)
     return result

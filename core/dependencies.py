@@ -40,7 +40,11 @@ class CalendarPermission:
         if get_calendar: self.fetch_fields.append("calendar")
         if get_user: self.fetch_fields.append("user")
 
-    async def __call__(self, request: Request, calendar_id: int) -> Any:
+    async def __call__(
+        self, 
+        request: Request, 
+        calendar_id: int,
+    ) -> Any:
         query_set = calendar_model.CalendarUser.filter(
             user_id=request.state.token_payload["id"],
             calendar_id=calendar_id,

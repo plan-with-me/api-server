@@ -10,13 +10,7 @@ class CalendarSimpleResponse(BaseResponse):
     image: str | None
 
 
-class CalendarResponse(BaseResponse):
-    name: str
-    image: str | None
-    users: list[user_dto.UserResponse] = []
-
-
 class CalendarForm(BaseModel):
     name: str
     image: str | None = None
-    user_ids: list[int] = []
+    # user_ids: list[int] = []
