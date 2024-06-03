@@ -21,6 +21,10 @@ router = APIRouter(
 @atomic()
 async def create_calendar(request: Request, form: dto.CalendarForm):
     calendar = await model.Calendar.create(**form.__dict__)
+    await model.CalendarUser.create(
+        user_id=request.state.token_payload["id"],
+        calendar_id=calendar.id,
+    )
     # form.user_ids.append(request.state.token_payload["id"])
     # await util.set_users_on_calendar(
     #     calendar_id=calendar.id,
