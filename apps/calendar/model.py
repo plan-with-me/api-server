@@ -12,3 +12,4 @@ class Calendar(BaseEntity):
 class CalendarUser(BaseEntity):
     user = fields.ForeignKeyField(model_name="models.User", related_name="calendars")
     calendar = fields.ForeignKeyField(model_name="models.Calendar", related_name="users")
+    is_admin = fields.BooleanField(default=False)

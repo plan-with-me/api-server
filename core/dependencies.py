@@ -33,9 +33,11 @@ class CalendarPermission:
 
     def __init__(
         self,
+        check_admin = False,
         get_calendar = False,
         get_user = False,
     ) -> None:
+        self.check_admin = check_admin
         self.fetch_fields = []
         if get_calendar: self.fetch_fields.append("calendar")
         if get_user: self.fetch_fields.append("user")
@@ -48,8 +50,10 @@ class CalendarPermission:
         query_set = calendar_model.CalendarUser.filter(
             user_id=request.state.token_payload["id"],
             calendar_id=calendar_id,
-        ).select_related(*self.fetch_fields).first()
-        calendar_user = await query_set
+        ).select_related(*self.fetch_fields)
+        if self.check_admin:
+            query_set = query_set.filter(is_admin=True)
+        calendar_user = await query_set.first()
         if not calendar_user:
             raise HTTPException(status.HTTP_403_FORBIDDEN)
         request.state.calendar_user = calendar_user

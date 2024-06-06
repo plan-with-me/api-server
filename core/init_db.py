@@ -135,4 +135,12 @@ async def dummy_data():
 
     import apps.calendar.model as calendar_model
     await calendar_model.Calendar.create(name="Test Calendar 1")
-    await calendar_model.CalendarUser.create(user_id=1, calendar_id=1)
+    await calendar_model.Calendar.create(name="Test Calendar 2")
+    await calendar_model.CalendarUser.create(user_id=1, calendar_id=1, is_admin=True)
+    await calendar_model.CalendarUser.create(user_id=1, calendar_id=2, is_admin=True)
+    await calendar_model.CalendarUser.create(user_id=2, calendar_id=1)
+    await calendar_model.CalendarUser.create(user_id=3, calendar_id=1)
+    await calendar_model.CalendarUser.create(user_id=4, calendar_id=1)
+    await calendar_model.CalendarUser.create(user_id=2, calendar_id=2)
+    await calendar_model.CalendarUser.create(user_id=3, calendar_id=2)
+    await calendar_model.CalendarUser.create(user_id=4, calendar_id=2)

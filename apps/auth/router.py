@@ -74,5 +74,5 @@ async def authentication(
 
 
 @router.get("/test")
-async def test_auth():
-    return build_token(id=1)
+async def test_auth(user_id: int = 1):
+    return build_token(id=user_id)
