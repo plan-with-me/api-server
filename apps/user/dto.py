@@ -7,7 +7,7 @@ class UserResponse(BaseResponse):
     name: str
     introduction: str | None
     image: str | None
-    email: str
+    uid: str
 
 
 class UserUpdateForm(BaseModel):
