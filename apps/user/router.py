@@ -141,15 +141,10 @@ async def get_follows(
 
 @router.put(
     path="/{user_id}/follows",
-    description="""
-    요청한 유저가 `user_id`에 해당하는 유저의 팔로우 요청을 수락합니다.
-    """,
+    description="요청한 유저가 `user_id`에 해당하는 유저의 팔로우 요청을 수락합니다",
 )
 @atomic()
-async def accept_follows(
-    request: Request,
-    user_id: int,
-):
+async def accept_follows(request: Request, user_id: int):
     result = await model.Follow.filter(
         user_id=user_id,
         target_user_id=request.state.token_payload["id"],

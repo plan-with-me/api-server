@@ -15,16 +15,16 @@ router = APIRouter(
 
 @router.post(
     path="",
-    response_model=dto.CalendarSimpleResponse,
-    description="""
-    공유 달력을 생성합니다.   
-    `user_ids`에는 구성원의 유저 id 배열을 입력합니다.   
-    ex) [1, 2, 3, ..]
-    """
+    response_model=dto.CalendarResponse,
+    description="""공유 달력을 생성합니다."""
 )
 @atomic()
 async def create_calendar(request: Request, form: dto.CalendarForm):
     calendar = await model.Calendar.create(**form.__dict__)
+    await model.CalendarUser.create(
+        user_id=request.state.token_payload["id"],
+        calendar_id=calendar.id,
+    )
     # form.user_ids.append(request.state.token_payload["id"])
     # await util.set_users_on_calendar(
     #     calendar_id=calendar.id,
@@ -36,7 +36,7 @@ async def create_calendar(request: Request, form: dto.CalendarForm):
 
 @router.get(
     path="",
-    response_model=list[dto.CalendarSimpleResponse],
+    response_model=list[dto.CalendarResponse],
     description="""
     특정 유저의 공유 달력을 모두 조회합니다.   
     본인의 공유 달력을 조회할 경우 `user_id` 파라미터를 포함하지 않고 요청합니다.
@@ -48,10 +48,20 @@ async def get_calendar_list(request: Request, user_id: int = None):
     return [calendar_user.calendar for calendar_user in calendar_users]
 
 
+@router.get(
+    path="/{calendar_id}",
+    response_model=dto.CalendarResponse,
+    description="""특정 공유 달력 정보를 조회합니다.""",
+)
+async def get_calendar(request: Request, calendar_id: int):
+    calendar = await model.Calendar.get(id=calendar_id)
+    return calendar
+
+
 @router.put(
     path="/{calendar_id}",
     dependencies=[Depends(CalendarPermission(get_calendar=True))],
-    response_model=dto.CalendarSimpleResponse,
+    response_model=dto.CalendarResponse,
     description="""
     공유 달력 정보를 수정합니다.
     """
