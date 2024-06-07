@@ -5,7 +5,7 @@ from apps.goal.enum import GoalStatus, ShowScope
 
 
 class TopGoal(BaseEntity):
-    name = fields.CharField(max_length=16)
+    name = fields.CharField(max_length=32)
     color = fields.CharField(max_length=16, default="skyblue")
     status = fields.CharEnumField(GoalStatus, max_length=16, default=GoalStatus.INCOMPLETE)
     show_scope = fields.CharEnumField(ShowScope, max_length=16, default=ShowScope.ME)

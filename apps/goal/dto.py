@@ -10,6 +10,7 @@ class TopGoalResponse(BaseResponse):
     color: str
     status: enum.GoalStatus
     show_scope: str
+    user_id: int
 
 
 class TopGoalAchievementRateResponse(BaseResponse):
@@ -31,6 +32,7 @@ class SubGoalRepsonse(BaseResponse):
     name: str
     plan_datetime: datetime
     status: enum.GoalStatus
+    user_id: int
 
 
 class SubGoalForm(BaseModel):

@@ -2,9 +2,10 @@ from enum import Enum
 
 
 class ShowScope(Enum):
-    ME = "me"
-    FOLLWERS = "followers"
     ALL = "all"
+    FOLLWERS = "followers"
+    GROUP = "group"
+    ME = "me"
 
 
 class GoalStatus(Enum):

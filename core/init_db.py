@@ -140,7 +140,30 @@ async def dummy_data():
     await calendar_model.CalendarUser.create(user_id=1, calendar_id=2, is_admin=True)
     await calendar_model.CalendarUser.create(user_id=2, calendar_id=1)
     await calendar_model.CalendarUser.create(user_id=3, calendar_id=1)
-    await calendar_model.CalendarUser.create(user_id=4, calendar_id=1)
     await calendar_model.CalendarUser.create(user_id=2, calendar_id=2)
     await calendar_model.CalendarUser.create(user_id=3, calendar_id=2)
-    await calendar_model.CalendarUser.create(user_id=4, calendar_id=2)
+    await goal_model.TopGoal.create(
+        name="Test calendar topgoal 1",
+        show_scope="group",
+        user_id=1,
+        calendar_id=1,
+    )
+    await goal_model.TopGoal.create(
+        name="Test calendar topgoal 2",
+        user_id=1,
+        calendar_id=1,
+    )
+    await goal_model.SubGoal.create(
+        name="그룹모두",
+        plan_datetime=datetime(2024, 6, 30),
+        user_id=1,
+        calendar_id=1,
+        top_goal_id=6,
+    )
+    await goal_model.SubGoal.create(
+        name="나만",
+        plan_datetime=datetime(2024, 6, 30),
+        user_id=1,
+        calendar_id=1,
+        top_goal_id=7,
+    )

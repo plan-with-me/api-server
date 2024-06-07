@@ -17,12 +17,18 @@ router = APIRouter(
 @router.post(
     path="",
     response_model=dto.TopGoalResponse,
+    description="""
+    상위 목표를 생성합니다.   
+    `show_scope` 필드에는 "me", "followers", "all" 값만 사용 가능합니다.   
+    """
 )
 @atomic()
 async def create_top_goal(
     request: Request,
     form: dto.TopGoalForm,
 ):
+    if form.show_scope not in (enum.ShowScope.ME, enum.ShowScope.FOLLWERS, enum.ShowScope.ALL):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST)
     top_goal = await model.TopGoal.create(
         **form.__dict__,
         user_id=request.state.token_payload["id"],
