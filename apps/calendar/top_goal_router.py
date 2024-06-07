@@ -11,14 +11,18 @@ router = APIRouter(
     tags=["Calendar Goals"],
     dependencies=[
         Depends(Auth()), 
-        Depends(CalendarPermission()),
     ],
 )
 
 
 @router.post(
     path="",
+    dependencies=[Depends(CalendarPermission(check_admin=True))],
     response_model=goal_dto.TopGoalResponse,
+    description="""
+    상위 목표를 생성합니다.   
+    - 관리자가 아닌 유저가 시도할 경우 **403 오류**를 응답합니다.
+    """
 )
 @atomic()
 async def create_top_goal(
@@ -36,6 +40,7 @@ async def create_top_goal(
 
 @router.get(
     path="",
+    dependencies=[Depends(CalendarPermission())],
     response_model=list[goal_dto.TopGoalResponse],
 )
 async def get_top_goals(calendar_id: int):
@@ -45,7 +50,12 @@ async def get_top_goals(calendar_id: int):
 
 @router.put(
     path="/{top_goal_id}",
+    dependencies=[Depends(CalendarPermission(check_admin=True))],
     response_model=goal_dto.TopGoalResponse,
+    description="""
+    상위 목표를 수정합니다.   
+    - 관리자가 아닌 유저가 시도할 경우 **403 오류**를 응답합니다.
+    """
 )
 @atomic()
 async def update_top_goal(
@@ -64,6 +74,11 @@ async def update_top_goal(
 
 @router.delete(
     path="/{top_goal_id}",
+    dependencies=[Depends(CalendarPermission(check_admin=True))],
+    description="""
+    상위 목표를 삭제합니다.   
+    - 관리자가 아닌 유저가 시도할 경우 **403 오류**를 응답합니다.
+    """
 )
 @atomic()
 async def delete_top_goal(calendar_id: int, top_goal_id: int):
