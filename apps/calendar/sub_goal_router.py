@@ -78,7 +78,7 @@ async def get_sub_goals(
 async def update_sub_goal(
     calendar_id: int, 
     sub_goal_id: int,
-    form: dto.TopGoalForm,
+    form: dto.SubGoalForm,
 ):
     sub_goal = await model.SubGoal.get(
         id=sub_goal_id,
