@@ -22,6 +22,7 @@ router = APIRouter(
     response_model=dto.TopGoalResponse,
     description="""
     상위 목표를 생성합니다.   
+    `show_scope` 필드에는 "me", "group" 값만 사용 가능합니다.   
     - 관리자가 아닌 유저가 시도할 경우 **403 오류**를 응답합니다.
     """
 )
