@@ -11,6 +11,7 @@ class TopGoalResponse(BaseResponse):
     status: enum.GoalStatus
     show_scope: str
     user_id: int
+    tags: list[str] = []
 
 
 class TopGoalAchievementRateResponse(BaseResponse):
