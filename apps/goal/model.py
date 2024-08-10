@@ -11,6 +11,7 @@ class TopGoal(BaseEntity):
     show_scope = fields.CharEnumField(ShowScope, max_length=16, default=ShowScope.ME)
     user = fields.ForeignKeyField(model_name="models.User", related_name="top_goals")
     calendar = fields.ForeignKeyField(model_name="models.Calendar", related_name="top_goals", null=True)
+    tags = fields.JSONField(default=[])
 
 
 class SubGoal(BaseEntity):

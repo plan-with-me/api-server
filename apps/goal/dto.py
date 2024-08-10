@@ -25,6 +25,7 @@ class TopGoalForm(BaseModel):
     color: str = "skyblue"
     status: enum.GoalStatus
     show_scope: enum.ShowScope = enum.ShowScope.ME
+    tags: list[str] = []
 
 
 class SubGoalRepsonse(BaseResponse):
