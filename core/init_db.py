@@ -66,15 +66,18 @@ async def dummy_data():
         await goal_model.TopGoal.create(
             name=f"테스트 상위목표 {idx}",
             user_id=1,
+            tags=["태그1", "태그2", "태그3"],
         )
     await goal_model.TopGoal.create(
         name="Test topgoal 1",
         user_id=2,
         show_scope="all",
+        tags=["태그4", "태그5", "태그6"],
     )
     await goal_model.TopGoal.create(
         name="Test topgoal 2",
         user_id=3,
+        tags=["태그7", "태그8", "태그9"],
     )
 
     from apps.goal.enum import GoalStatus
