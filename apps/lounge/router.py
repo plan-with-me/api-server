@@ -18,7 +18,7 @@ from apps.lounge.dto import *
 router = APIRouter(
     prefix="/lounge",
     tags=["Lounge"],
-    # dependencies=[Depends(Auth())],
+    dependencies=[Depends(Auth())],
 )
 
 
