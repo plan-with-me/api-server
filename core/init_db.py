@@ -170,3 +170,13 @@ async def dummy_data():
         calendar_id=1,
         top_goal_id=7,
     )
+
+    import apps.diary.model as diary_model
+    await diary_model.Diary.create(
+        title="일기1",
+        icon="asd",
+        created_at="2024-08-23",
+        content={},
+        show_scope="all",
+        user_id=1
+    )
