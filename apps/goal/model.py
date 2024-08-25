@@ -1,7 +1,7 @@
 from tortoise import fields
 
 from core.base_orm import BaseEntity
-from apps.goal.enum import GoalStatus, ShowScope
+from apps.goal.enum import GoalStatus, ShowScope, ReactionType
 
 
 class TopGoal(BaseEntity):
@@ -21,3 +21,10 @@ class SubGoal(BaseEntity):
     user = fields.ForeignKeyField(model_name="models.User", related_name="sub_goals")
     top_goal = fields.ForeignKeyField(model_name="models.TopGoal", related_name="sub_goals")
     calendar = fields.ForeignKeyField(model_name="models.Calendar", related_name="sub_goals", null=True)
+
+
+class Reaction(BaseEntity):
+    type = fields.CharEnumField(ReactionType, max_length=16)
+    content = fields.TextField()
+    user = fields.ForeignKeyField(model_name="models.User", related_name="reacts")
+    sub_goal = fields.ForeignKeyField(model_name="models.SubGoal", related_name="reacts")

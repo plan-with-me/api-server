@@ -41,3 +41,8 @@ class SubGoalForm(BaseModel):
     name: str
     plan_datetime: datetime
     status: enum.GoalStatus
+
+
+class ReactionForm(BaseModel):
+    type: enum.ReactionType
+    content: str

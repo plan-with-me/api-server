@@ -11,3 +11,8 @@ class ShowScope(Enum):
 class GoalStatus(Enum):
     INCOMPLETE = "incomplete"
     COMPLETE = "complete"
+
+
+class ReactionType(Enum):
+    COMMENT = "comment"
+    EMOTICON = "imoticon"
