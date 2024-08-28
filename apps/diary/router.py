@@ -10,7 +10,7 @@ from apps.user import util as user_util
 router = APIRouter(
     prefix="/diaries",
     tags=["Diary"],
-    # dependencies=[Depends(Auth())],
+    dependencies=[Depends(Auth())],
 )
 
 

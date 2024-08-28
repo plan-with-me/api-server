@@ -71,12 +71,13 @@ async def on_start_up():
         timezone="Asia/Seoul",
     )
 
-    # from core import init_db
-    # try:
-    #     await init_db.schema_and_tables(safe=False)
-    #     await init_db.dummy_data()
-    # except:
-    #     pass
+
+    from core import init_db
+    await init_db.schema_and_tables(safe=True)
+
+    # Only dev
+    # await init_db.schema_and_tables(safe=False)
+    # await init_db.dummy_data()
 
     # Get tortoise logger for debug sql script
     fmt = logging.Formatter(fmt="%(message)s\n", datefmt="%Y-%m-%d %H:%M:%S")
