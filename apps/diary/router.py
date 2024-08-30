@@ -42,7 +42,7 @@ async def get_user_diaries(
     user_id: int | None = None,
     date: str | None = None
 ):
-    request_user_id = 1
+    request_user_id = request.state.token_payload["id"]
     query_set = Diary.filter(
         user_id=user_id if user_id else request_user_id,
     )

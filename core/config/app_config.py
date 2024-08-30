@@ -71,7 +71,6 @@ async def on_start_up():
         timezone="Asia/Seoul",
     )
 
-
     from core import init_db
     await init_db.schema_and_tables(safe=True)
 
