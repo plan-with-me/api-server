@@ -47,7 +47,7 @@ async def get_user_diaries(
         user_id=user_id if user_id else request_user_id,
     )
     if date:
-        query_set = query_set.filter(created_at__startswith=date)
+        query_set = query_set.filter(date=date)
     if user_id and user_id != request_user_id:
         query_set = query_set.filter(show_scope__not=ShowScope.ME)
         if not await user_util.check_is_following(request_user_id, user_id):
