@@ -10,3 +10,4 @@ class Diary(BaseEntity):
     content = fields.JSONField()
     show_scope = fields.CharEnumField(ShowScope, default=ShowScope.ME)
     user = fields.ForeignKeyField(model_name="models.User", related_name="diaries")
+    date = fields.DateField()

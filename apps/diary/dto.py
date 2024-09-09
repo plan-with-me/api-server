@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+import datetime as dt
 
 from core.base_dto import BaseResponse
 from apps.goal.enum import ShowScope
@@ -18,3 +19,4 @@ class DiaryResponse(BaseResponse):
     content: dict
     show_scope: ShowScope
     user: UserResponse | None = None
+    date: dt.date
