@@ -11,6 +11,7 @@ class DiaryForm(BaseModel):
     icon: str
     content: dict
     show_scope: ShowScope
+    date: dt.date
 
 
 class DiaryResponse(BaseResponse):
