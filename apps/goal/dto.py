@@ -40,6 +40,12 @@ class ReactionSimpleResponse(BaseModel):
     count: int
 
 
+class ReactionResponse(BaseModel):
+    content: str
+    created_at: datetime
+    user: dict
+
+
 class SubGoalRepsonse(BaseResponse):
     top_goal_id: int
     name: str

@@ -64,23 +64,19 @@ async def get_sub_goals(
             query_set = query_set.filter(top_goal__show_scope__not=enum.ShowScope.FOLLWERS)
     sub_goals = await query_set.all()
     reactions = await (
-        model.Reaction.filter(sub_goal_id__in=[sg.id for sg in sub_goals])
+        model.Reaction.filter(
+            type=enum.ReactionType.EMOTICON,
+            sub_goal_id__in=[sg.id for sg in sub_goals],
+        )
         .annotate(count=Count("id"))
         .group_by("sub_goal_id", "type", "content")
         .values("sub_goal_id", "type", "content", "count")
     )
     for sub_goal in sub_goals:
         sub_goal.reactions = [
-            dto.ReactionSimpleResponse(
-                type=r["type"],
-                content=r["content"],
-                count=r["count"],
-            ) for r in reactions
-            if r["sub_goal_id"] == sub_goal.id
+            dto.ReactionSimpleResponse(**reaction) for reaction in reactions
+            if reaction["sub_goal_id"] == sub_goal.id
         ]
-    from pprint import pprint
-    pprint(reactions)
-    # pprint([r.__dict__ for r in reactions])
     return sub_goals
 
 

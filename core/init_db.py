@@ -120,6 +120,12 @@ async def dummy_data():
         user_id=1,
         sub_goal_id=3,
     )
+    await goal_model.Reaction.create(
+        type=goal_model.ReactionType.COMMENT,
+        content="지미",
+        user_id=1,
+        sub_goal_id=3,
+    )
     await goal_model.SubGoal.create(
         name="하위목표 2",
         plan_datetime=datetime(2024, 12, 30),
