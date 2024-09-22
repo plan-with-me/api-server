@@ -66,6 +66,7 @@ async def dummy_data():
         await goal_model.TopGoal.create(
             name=f"테스트 상위목표 {idx}",
             user_id=1,
+            show_scope="all",
             tags=["태그1", "태그2", "태그3"],
         )
     await goal_model.TopGoal.create(

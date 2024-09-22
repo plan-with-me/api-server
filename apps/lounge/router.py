@@ -38,7 +38,7 @@ async def get_random_tags(request: Request):
 
 @router.get(
     "/users",
-    # response_model=list[UserGoalsResponse],
+    response_model=list[UserGoalsResponse],
     description="""
     유저 목록을 상위 목표, 하위 목표와 함께 조회합니다.  
     - email, tag를 둘 다 포함하지 않고 요청하면 임의의 유저 목록을 조회합니다.  
@@ -60,25 +60,30 @@ async def get_users(
             TopGoal.filter(
                 tags__contains=[tag],
                 show_scope=ShowScope.ALL,
-                sub_goals__created_at__gte=(now - timedelta(days=1)),
             )
             .select_related("user")
-            .prefetch_related("sub_goals")
             .annotate(order=Random())
-            .order_by("order")
-            .limit(10)
+            .order_by("order", "-id")
+            .limit(5)
         )
+        sub_goals = await SubGoal.filter(top_goal_id__in=[tg.id for tg in top_goals]).limit(100)
         for top_goal in top_goals:
-            user_res = UserGoalsResponse(**top_goal.user.__dict__)
             top_goal_res = TopGoalWithSubGoals(
                 **top_goal.__dict__,
                 sub_goals=[
                     SubGoalRepsonse(**sub_goal.__dict__) 
-                    for sub_goal in top_goal.sub_goals.related_objects
-                ]
+                    for sub_goal in sub_goals
+                    if sub_goal.top_goal_id == top_goal.id
+                ],
             )
-            user_res.top_goals.append(top_goal_res)
-            response.append(user_res)
+            user_res = [record for record in response if record.id == top_goal.user.id]
+            if user_res:
+                user_res = user_res[0]
+                user_res.top_goals.append(top_goal_res)
+            else:
+                user_res = UserGoalsResponse(**top_goal.user.__dict__)
+                user_res.top_goals.append(top_goal_res)
+                response.append(user_res)
         return response
 
     else:
@@ -89,29 +94,32 @@ async def get_users(
             users_query_set = users_query_set.annotate(order=Random()).order_by("order")
         users = await users_query_set
 
-        top_goals_query_set = (
+        top_goals = await (
             TopGoal.filter(
                 user_id__in=[user.id for user in users],
                 show_scope=ShowScope.ALL,
-                sub_goals__created_at__gte=(now - timedelta(days=1)),
             )
-            .prefetch_related("sub_goals")
             .order_by("-id")
-            .limit(3)
+            .limit(100)
         )
-        top_goals = await top_goals_query_set
+        sub_goals = await SubGoal.filter(
+            top_goal_id__in=[tg.id for tg in top_goals],
+            created_at__gte=(now - timedelta(days=30)),
+        ).limit(100)
 
-        for user in users:
-            user_res = UserGoalsResponse(**user.__dict__)
-            for top_goal in top_goals:
-                top_goal_res = TopGoalWithSubGoals(**top_goal.__dict__)
-                if user.id == top_goal.user_id:
-                    top_goal_res.sub_goals = [
-                        SubGoalRepsonse(**sub_goal.__dict__) 
-                        for sub_goal in top_goal.sub_goals.related_objects
-                    ]
-                user_res.top_goals.append(top_goal_res)
-            response.append(user_res)
+        response = [UserGoalsResponse(**user.__dict__) for user in users]
+        for top_goal in top_goals:
+            top_goal_res = TopGoalWithSubGoals(
+                **top_goal.__dict__, 
+                sub_goals=[
+                    SubGoalRepsonse(**sub_goal.__dict__) 
+                    for sub_goal in sub_goals
+                    if sub_goal.top_goal_id == top_goal.id
+                ],
+            )
+            for user_res in response:
+                if user_res.id == top_goal.user_id:
+                    user_res.top_goals.append(top_goal_res)
         return response
 
 

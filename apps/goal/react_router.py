@@ -31,6 +31,17 @@ async def create_reaction(
     return reaction
 
 
+@router.get(
+    "",
+    # response_model=dto,
+)
+async def get_reactions(
+    request: Request,
+    sub_goal_id: int,
+):
+    reactions = await model.Reaction.filter(sub_goal_id=sub_goal_id)
+
+
 @router.put(
     "/{reaction_id}",
 )
