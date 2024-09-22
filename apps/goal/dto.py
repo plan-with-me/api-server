@@ -29,12 +29,24 @@ class TopGoalForm(BaseModel):
     tags: list[str] = []
 
 
+class ReactionForm(BaseModel):
+    type: enum.ReactionType
+    content: str
+
+
+class ReactionSimpleResponse(BaseModel):
+    type: enum.ReactionType
+    content: str
+    count: int
+
+
 class SubGoalRepsonse(BaseResponse):
     top_goal_id: int
     name: str
     plan_datetime: datetime
     status: enum.GoalStatus
     user_id: int
+    reactions: list[ReactionSimpleResponse] = []
 
 
 class SubGoalForm(BaseModel):
@@ -42,7 +54,3 @@ class SubGoalForm(BaseModel):
     plan_datetime: datetime
     status: enum.GoalStatus
 
-
-class ReactionForm(BaseModel):
-    type: enum.ReactionType
-    content: str

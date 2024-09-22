@@ -84,7 +84,8 @@ async def dummy_data():
     from apps.goal.enum import GoalStatus
     await goal_model.SubGoal.create(
         name="Test subgoal1",
-        plan_datetime=datetime(2024, 12, 30),
+        # plan_datetime=datetime(2024, 12, 30),
+        plan_datetime=datetime.now(),
         user_id=2,
         top_goal_id=4,
     )
@@ -100,6 +101,24 @@ async def dummy_data():
         user_id=1,
         top_goal_id=1,
         status=GoalStatus.COMPLETE,
+    )
+    await goal_model.Reaction.create(
+        type=goal_model.ReactionType.EMOTICON,
+        content="😔",
+        user_id=1,
+        sub_goal_id=3,
+    )
+    await goal_model.Reaction.create(
+        type=goal_model.ReactionType.EMOTICON,
+        content="😔",
+        user_id=1,
+        sub_goal_id=3,
+    )
+    await goal_model.Reaction.create(
+        type=goal_model.ReactionType.EMOTICON,
+        content="d",
+        user_id=1,
+        sub_goal_id=3,
     )
     await goal_model.SubGoal.create(
         name="하위목표 2",
@@ -175,6 +194,22 @@ async def dummy_data():
     import apps.diary.model as diary_model
     await diary_model.Diary.create(
         title="일기1",
+        icon="asd",
+        content={},
+        show_scope="all",
+        user_id=1,
+        date="2024-01-01",
+    )
+    await diary_model.Diary.create(
+        title="일기2",
+        icon="asd",
+        content={},
+        show_scope="all",
+        user_id=1,
+        date="2024-01-01",
+    )
+    await diary_model.Diary.create(
+        title="일기3",
         icon="asd",
         content={},
         show_scope="all",

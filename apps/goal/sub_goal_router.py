@@ -2,6 +2,7 @@ from fastapi import APIRouter, Request, Depends, status, HTTPException
 
 from datetime import date
 from tortoise.transactions import atomic
+from tortoise.functions import Count
 
 from core.dependencies import Auth
 from apps.goal import model, dto, enum
@@ -55,13 +56,31 @@ async def get_sub_goals(
     query_set = model.SubGoal.filter(
         user_id=user_id if user_id else request_user_id,
         calendar_id=None,
-        plan_datetime__startswith=plan_date
+        plan_datetime__startswith=plan_date,
     )
     if user_id and user_id != request_user_id:
         query_set = query_set.filter(top_goal__show_scope__not=enum.ShowScope.ME)
         if not await user_util.check_is_following(request_user_id, user_id):
             query_set = query_set.filter(top_goal__show_scope__not=enum.ShowScope.FOLLWERS)
     sub_goals = await query_set.all()
+    reactions = await (
+        model.Reaction.filter(sub_goal_id__in=[sg.id for sg in sub_goals])
+        .annotate(count=Count("id"))
+        .group_by("sub_goal_id", "type", "content")
+        .values("sub_goal_id", "type", "content", "count")
+    )
+    for sub_goal in sub_goals:
+        sub_goal.reactions = [
+            dto.ReactionSimpleResponse(
+                type=r["type"],
+                content=r["content"],
+                count=r["count"],
+            ) for r in reactions
+            if r["sub_goal_id"] == sub_goal.id
+        ]
+    from pprint import pprint
+    pprint(reactions)
+    # pprint([r.__dict__ for r in reactions])
     return sub_goals
 
 
