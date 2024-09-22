@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Request, status, HTTPException
 from tortoise.transactions import atomic
 from tortoise import Tortoise
-from tortoise.expressions import RawSQL
+from tortoise.functions import Count
 from tortoise.contrib.postgres.functions import Random
 
 import pytz
@@ -91,7 +91,13 @@ async def get_users(
         if email:
             users_query_set = users_query_set.filter(uid__contains=email)
         else:
-            users_query_set = users_query_set.annotate(order=Random()).order_by("order")
+            users_query_set = (
+                users_query_set
+                .annotate(order=Random())
+                .annotate(top_goal_count=Count("top_goals"))
+                .filter(top_goal_count__gte=1)
+                .order_by("order")
+            )
         users = await users_query_set
 
         top_goals = await (
