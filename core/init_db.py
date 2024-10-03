@@ -13,6 +13,8 @@ async def schema_and_tables(safe: bool=True):
             await default_db_conn.execute_query(f"CREATE SCHEMA {secrets.DB_SCHEMA}")
     await Tortoise.generate_schemas(safe=safe)
 
+    await default_db_conn.execute_query("CREATE EXTENSION IF NOT EXISTS pg_trgm;")
+
 
 async def dummy_data():
     import random
@@ -64,21 +66,26 @@ async def dummy_data():
     from apps.goal import model as goal_model
     for idx in range(1, 4):
         await goal_model.TopGoal.create(
-            name=f"테스트 상위목표 {idx}",
+            name=f"공부 조지기 {idx}",
             user_id=1,
             show_scope="all",
-            tags=["태그1", "태그2", "태그3"],
+            tags=["공부", "대학"],
         )
     await goal_model.TopGoal.create(
-        name="Test topgoal 1",
+        name="헬스조지기",
         user_id=2,
         show_scope="all",
-        tags=["태그4", "태그5", "태그6"],
+        tags=["헬스"],
     )
     await goal_model.TopGoal.create(
-        name="Test topgoal 2",
+        name="게임조지기",
         user_id=3,
-        tags=["태그7", "태그8", "태그9"],
+        tags=["게임"],
+    )
+    await goal_model.TopGoal.create(
+        name="코딩조지기",
+        user_id=3,
+        tags=["코딩"],
     )
 
     from apps.goal.enum import GoalStatus

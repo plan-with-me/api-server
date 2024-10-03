@@ -13,6 +13,7 @@ from apps.goal.model import *
 from apps.goal.enum import *
 from apps.goal.dto import *
 from apps.lounge.dto import *
+from apps.lounge.query_function import *
 
 
 router = APIRouter(
@@ -41,7 +42,7 @@ async def get_random_tags(request: Request):
     response_model=list[UserGoalsResponse],
     description="""
     유저 목록을 상위 목표, 하위 목표와 함께 조회합니다.  
-    - email, tag를 둘 다 포함하지 않고 요청하면 임의의 유저 목록을 조회합니다.  
+    - email, tag를 둘 다 포함하지 않고 요청하면 오류가 발생합니다..  
     - email을 포함할 경우 이메일로 유저를 필터링합니다.  
     - tag를 포함할 경우 해당 태그의 상위 목표를 가지고 있는 유저를 필터링합니다.  
     """
@@ -88,16 +89,9 @@ async def get_users(
 
     else:
         users_query_set = User.all().limit(5)
-        if email:
-            users_query_set = users_query_set.filter(uid__contains=email)
-        else:
-            users_query_set = (
-                users_query_set
-                .annotate(order=Random())
-                .annotate(top_goal_count=Count("top_goals"))
-                .filter(top_goal_count__gte=1)
-                .order_by("order")
-            )
+        if not email:
+            raise HTTPException("Search keyword is null (email or tag)")
+        users_query_set = users_query_set.filter(uid__contains=email)
         users = await users_query_set
 
         top_goals = await (
@@ -127,6 +121,18 @@ async def get_users(
                 if user_res.id == top_goal.user_id:
                     user_res.top_goals.append(top_goal_res)
         return response
+
+
+@router.post(
+    path="/feeds",
+    description="""
+    개인화된 피드(다른 유저의 상위 목표)를 조회합니다.   
+    서버에 새로운 리소스를 등록하는 동작은 없지만 exclude_ids 필드의 크기 증가에 대비해 POST 요청으로 받습니다.   
+    exclude_ids 필드엔 제외할 상위 목표 ID를 입력합니다.
+    """
+)
+async def get_feeds(request: Request, exclude_ids: str):
+    request_user_id = request.state.token_payload["id"]
 
 
 # @router.get(
