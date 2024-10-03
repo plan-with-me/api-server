@@ -38,6 +38,34 @@ async def create_sub_goal(
     return sub_goal
 
 
+@router.post(
+    path="/{sub_goal_id}",
+    response_model=dto.SubGoalRepsonse,
+    description="""
+    공유 달력의 특정 하위 목표를 자신의 하위 목표로 복사하여 가져옵니다.   
+    - calendar_id(Path Param): 복사할 하위 목표가 위치한 달력 ID
+    - sub_goal_id(Path Param): 복사할 하위 목표의 ID
+    - my_top_goal_id(Query Param): 복사해올 자신의 상위 목표 ID 
+    """,
+)
+@atomic()
+async def copy_sub_goal(
+    request: Request,
+    calendar_id: int,
+    sub_goal_id: int,
+    my_top_goal_id: int,
+):
+    target_sub_goal: model.SubGoal = await model.SubGoal.get(id=sub_goal_id)
+    copied_sub_goal: model.SubGoal = await model.SubGoal.create(
+        name=target_sub_goal.name,
+        plan_datetime=target_sub_goal.plan_datetime,
+        status=target_sub_goal.status,
+        user_id=request.state.token_payload["id"],
+        top_goal_id=my_top_goal_id,
+    )
+    return copied_sub_goal
+
+
 @router.get(
     path="",
     response_model=list[dto.SubGoalRepsonse],
