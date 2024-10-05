@@ -3,6 +3,7 @@ from fastapi import APIRouter, Request, Depends, status, HTTPException
 from tortoise.transactions import atomic
 
 from core.dependencies import Auth
+from core.client.gpt import OpenAIClient
 from apps.goal import model, dto, enum
 from apps.user import util as user_util
 
@@ -32,9 +33,11 @@ async def create_top_goal(
     tags = [tag.replace("#", "") for tag in list(set(form.tags))]
     if len(tags) > 5:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "태그는 최대 5개까지 등록 가능합니다")
+    related_tags = OpenAIClient().get_related_tags(tags)
     top_goal = await model.TopGoal.create(
         **form.__dict__,
         user_id=request.state.token_payload["id"],
+        related_tags=related_tags,
     )
     return top_goal
 

@@ -27,6 +27,6 @@ class OpenAIClient():
         )
         related_tags = json.loads(completion.choices[0].message.content)
         result = []
-        for tags in related_tags.items():
+        for tags in related_tags.values():
             result.extend(tags)
         return sorted(result)
