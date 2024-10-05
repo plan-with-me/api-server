@@ -43,9 +43,9 @@ async def create_sub_goal(
     response_model=dto.SubGoalRepsonse,
     description="""
     공유 달력의 특정 하위 목표를 자신의 하위 목표로 복사하여 가져옵니다.   
-    - calendar_id(Path Param): 복사할 하위 목표가 위치한 달력 ID
-    - sub_goal_id(Path Param): 복사할 하위 목표의 ID
-    - my_top_goal_id(Query Param): 복사해올 자신의 상위 목표 ID 
+    - calendar_id(Path Param): 복사할 하위 목표가 위치한 달력 ID   
+    - sub_goal_id(Path Param): 복사할 하위 목표의 ID   
+    - my_top_goal_id(Query Param): 복사해올 자신의 상위 목표 ID   
     """,
 )
 @atomic()
