@@ -29,7 +29,7 @@ async def create_top_goal(
 ):
     if form.show_scope not in (enum.ShowScope.ME, enum.ShowScope.FOLLWERS, enum.ShowScope.ALL):
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
-    tags = list(set(form.tags))
+    tags = [tag.replace("#", "") for tag in list(set(form.tags))]
     if len(tags) > 5:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "태그는 최대 5개까지 등록 가능합니다")
     top_goal = await model.TopGoal.create(
