@@ -14,6 +14,44 @@ async def schema_and_tables(safe: bool=True):
     await Tortoise.generate_schemas(safe=safe)
 
     await default_db_conn.execute_query("CREATE EXTENSION IF NOT EXISTS pg_trgm;")
+    await default_db_conn.execute_query("DROP FUNCTION IF EXISTS decompose_korean;")
+    await default_db_conn.execute_query("""
+        CREATE OR REPLACE FUNCTION decompose_korean(input_text TEXT)
+        RETURNS TEXT AS $$
+        DECLARE
+            result TEXT := '';
+            ch TEXT;
+            uni_val INT;
+            cho INT;
+            jung INT;
+            jong INT;
+            chosung TEXT[] := ARRAY['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
+            jungsung TEXT[] := ARRAY['ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅛ', 'ㅜ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅠ', 'ㅡ', 'ㅢ', 'ㅣ'];
+            jongsung TEXT[] := ARRAY['', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ', 'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ', 'ㄿ', 'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
+        BEGIN
+            FOR i IN 1..LENGTH(input_text) LOOP
+                -- 한 글자씩 추출
+                ch := SUBSTRING(input_text, i, 1);
+                uni_val := ASCII(ch);
+
+                -- 유니코드 값이 한글 범위에 있는지 확인
+                IF uni_val BETWEEN 44032 AND 55203 THEN
+                    -- 한글 자모 분리
+                    uni_val := uni_val - 44032;
+                    cho := uni_val / 588;
+                    jung := (uni_val % 588) / 28;
+                    jong := uni_val % 28;
+                    -- 결과 문자열에 초성, 중성, 종성 추가
+                    result := result || chosung[cho + 1] || jungsung[jung + 1] || jongsung[jong + 1];
+                ELSE
+                    -- 한글이 아닌 경우 그대로 추가
+                    result := result || ch;
+                END IF;
+            END LOOP;
+            RETURN result;
+        END;
+        $$ LANGUAGE plpgsql;
+    """)
 
 
 async def dummy_data():
@@ -72,20 +110,38 @@ async def dummy_data():
             tags=["공부", "대학"],
         )
     await goal_model.TopGoal.create(
+        name="테스틋-ㅌ셑슽",
+        user_id=1,
+        show_scope="all",
+        tags=["코딩", "공부"],
+    )
+    await goal_model.TopGoal.create(
         name="헬스조지기",
         user_id=2,
-        show_scope="all",
+        show_scope="followers",
         tags=["헬스"],
+        related_tags=["운동", "건강", "다이어트"],
     )
     await goal_model.TopGoal.create(
         name="게임조지기",
         user_id=3,
+        show_scope="followers",
         tags=["게임"],
+        related_tags=["컴퓨터", "취미", "여가"],
     )
     await goal_model.TopGoal.create(
         name="코딩조지기",
         user_id=3,
+        show_scope="followers",
         tags=["코딩"],
+        related_tags=["프로그래밍", "공부", "개발"],
+    )
+    await goal_model.TopGoal.create(
+        name="코딩조지기",
+        user_id=4,
+        show_scope="followers",
+        tags=["코딩"],
+        related_tags=["프로그래밍", "공부", "개발"],
     )
 
     from apps.goal.enum import GoalStatus

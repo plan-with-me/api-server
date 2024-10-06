@@ -1,7 +1,5 @@
 from fastapi import APIRouter, Depends, Request, status, HTTPException
-from tortoise.transactions import atomic
 from tortoise import Tortoise
-from tortoise.functions import Count
 from tortoise.contrib.postgres.functions import Random
 
 import pytz
@@ -125,14 +123,60 @@ async def get_users(
 
 @router.post(
     path="/feeds",
+    # response_model=FeedResponse,
     description="""
-    개인화된 피드(다른 유저의 상위 목표)를 조회합니다.   
-    서버에 새로운 리소스를 등록하는 동작은 없지만 exclude_ids 필드의 크기 증가에 대비해 POST 요청으로 받습니다.   
-    exclude_ids 필드엔 제외할 상위 목표 ID를 입력합니다.
+    개인화된 피드(다른 유저의 상위 목표)를 조회합니다.      
+    exclude_ids 필드엔 제외할 상위 목표 ID 리스트를 입력합니다.(이미 UI에 노출된 상위 목표 ID 목록)   
     """
 )
-async def get_feeds(request: Request, exclude_ids: str):
+async def get_feeds(request: Request, form: FeedForm):
     request_user_id = request.state.token_payload["id"]
+    form.exclude_ids = [str(id) for id in form.exclude_ids]
+    conn = Tortoise.get_connection("default")
+    main_tags = await get_tag_frequency(conn, request_user_id)
+
+    feeds = []
+    # 1. 주요 태그로 상위 목표의 tags 컬럼 검색(word_similarity 적용)
+    feeds = await search_top_goals_by_tags(conn, request_user_id, main_tags, form.exclude_ids)
+    if len(feeds) == 10:
+        return feeds
+    form.exclude_ids.extend([str(feed.top_goal.id) for feed in feeds])
+    limit = 10 - len(feeds)
+    print(len(feeds))
+
+    # 2. 주요 태그로 상위 목표의 related_tags 컬럼 검색
+    feeds.extend(
+        await search_top_goals_by_tags(
+            conn=conn, 
+            request_user_id=request_user_id, 
+            tags=main_tags, 
+            exclude_ids=form.exclude_ids, 
+            query_on_tags_column=False,
+            limit=limit,
+        )
+    )
+    if len(feeds) == 10:
+        return feeds
+    form.exclude_ids.extend([str(feed.top_goal.id) for feed in feeds])
+    limit = 10 - len(feeds)
+    print(len(feeds))
+
+    # 3. ㅈ까고 걍 다 검색 ㅋㅋ
+    top_goals = await (
+        TopGoal.exclude(id__in=form.exclude_ids, user_id=request_user_id)
+        .filter(show_scope=ShowScope.ALL)
+        .select_related("user")
+        .order_by("-id")
+        .limit(limit)
+    )
+    feeds.extend([
+        FeedResponse(
+            user=UserResponse(**top_goal.user.__dict__),
+            top_goal=TopGoalResponse(**top_goal.__dict__),
+        ) for top_goal in top_goals
+    ])
+    print(len(feeds))
+    return feeds
 
 
 # @router.get(
