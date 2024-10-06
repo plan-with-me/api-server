@@ -76,7 +76,7 @@ async def search_top_goals_by_tags(
             select 1 from jsonb_array_elements_text({"tags" if query_on_tags_column else "related_tags"}) as tag
             where {
                 " or ".join([
-                    "public" if IS_PROD else "" + "word_similarity(decompose_korean($" + str(idx) + "), decompose_korean(tag)) >= 0.25"
+                    "public." if IS_PROD else "" + "word_similarity(decompose_korean($" + str(idx) + "), decompose_korean(tag)) >= 0.25"
                     for idx in range(1, len(tags) + 1)
                 ]) if query_on_tags_column else 
                 "tag in (" + ",".join(["$" + str(idx) for idx in range(1, len(tags) + 1)]) + ")"
