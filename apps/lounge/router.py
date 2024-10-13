@@ -123,7 +123,7 @@ async def get_users(
 
 @router.post(
     path="/feeds",
-    # response_model=FeedResponse,
+    response_model=list(FeedResponse),
     description="""
     개인화된 피드(다른 유저의 상위 목표)를 조회합니다.      
     exclude_ids 필드엔 제외할 상위 목표 ID 리스트를 입력합니다.(이미 UI에 노출된 상위 목표 ID 목록)   
@@ -142,7 +142,6 @@ async def get_feeds(request: Request, form: FeedForm):
         return feeds
     form.exclude_ids.extend([str(feed.top_goal.id) for feed in feeds])
     limit = 10 - len(feeds)
-    print(len(feeds))
 
     # 2. 주요 태그로 상위 목표의 related_tags 컬럼 검색
     feeds.extend(
@@ -159,7 +158,6 @@ async def get_feeds(request: Request, form: FeedForm):
         return feeds
     form.exclude_ids.extend([str(feed.top_goal.id) for feed in feeds])
     limit = 10 - len(feeds)
-    print(len(feeds))
 
     # 3. ㅈ까고 걍 다 검색 ㅋㅋ
     top_goals = await (
@@ -175,7 +173,6 @@ async def get_feeds(request: Request, form: FeedForm):
             top_goal=TopGoalResponse(**top_goal.__dict__),
         ) for top_goal in top_goals
     ])
-    print(len(feeds))
     return feeds
 
 
