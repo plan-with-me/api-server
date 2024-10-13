@@ -123,7 +123,7 @@ async def get_users(
 
 @router.post(
     path="/feeds",
-    response_model=list(FeedResponse),
+    response_model=list[FeedResponse],
     description="""
     개인화된 피드(다른 유저의 상위 목표)를 조회합니다.      
     exclude_ids 필드엔 제외할 상위 목표 ID 리스트를 입력합니다.(이미 UI에 노출된 상위 목표 ID 목록)   
