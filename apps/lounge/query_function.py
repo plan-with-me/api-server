@@ -92,7 +92,7 @@ async def search_top_goals_by_tags(
         )
         and t.user_id != {request_user_id}
         and t.calendar_id IS NULL
-        {"and t.id not in (" + ",".join(exclude_ids) + ")" if exclude_ids else ""}
+        {("and t.id not in (" + ",".join(exclude_ids) + ")") if exclude_ids else ""}
     order by t.id desc
     limit {limit}
     """
