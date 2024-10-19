@@ -205,6 +205,7 @@ async def search_feeds_by_tag(request: Request, tag: str):
         conn=conn, 
         request_user_id=request_user_id, 
         tags=[tag], 
+        limit=30,
     )
     if feeds:
         sub_goals = await get_sub_goals_by_top_goal_ids(
