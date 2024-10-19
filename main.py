@@ -11,14 +11,13 @@ app_description = """
 - 문서에서 API 테스트 시 인증이 필요한 API는 우측의 **Authorize** 버튼을 누르고 액세스 토큰 값을 입력한 후 테스트합니다.
 """
 app = FastAPI(
-    title="Plan with me API",
+    title="Plan with me API Docs",
     root_path="/api",
     docs_url='/docs',
     redoc_url='/redoc',
     contact={
         "email": "iee785@dongyang.ac.kr",
     },
-
     description=app_description,
 )
 
