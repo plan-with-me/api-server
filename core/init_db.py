@@ -107,7 +107,7 @@ async def dummy_data():
             name=f"공부 조지기 {idx}",
             user_id=1,
             show_scope="all",
-            tags=["공부", "대학"],
+            tags=["#공부", "#대학"],
         )
     await goal_model.TopGoal.create(
         name="테스틋-ㅌ셑슽",

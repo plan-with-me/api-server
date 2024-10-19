@@ -193,29 +193,28 @@ async def get_feeds(request: Request, form: FeedForm):
     return feeds
 
 
-# @router.get(
-#     path="/sub-goals",
-# )
-# async def get_users_sub_goals(
-#     request: Request,
-#     user_ids: str,
-# ):
-#     query = (
-#         "SELECT "
-#         "   * "
-#         "FROM ("
-#         "   SELECT "
-#         "       *, "
-#         "       ROW_NUMBER() OVER (PARTITION BY sg.user_id ORDER BY sg.id DESC) as row_num "
-#         "   FROM "
-#         "       subgoal as sg "
-#         "   LEFT JOIN "
-#         "       topgoal tg ON tg.id = sg.top_goal_id "
-#         "   WHERE "
-#         "       tg.show_scope = 'all' AND sg.calendar_id IS NULL"
-#         ") r "
-#         "WHERE row_num <= 5 "
-#     )
-#     result = await SubGoal.raw(query)
-#     print(result)
-#     return result
+@router.get(
+    path="/feeds/search",
+    response_model=list[FeedResponse],
+)
+async def search_feeds_by_tag(request: Request, tag: str):
+    request_user_id = request.state.token_payload["id"]
+    conn = Tortoise.get_connection("default")
+
+    feeds = await search_top_goals_by_tags(
+        conn=conn, 
+        request_user_id=request_user_id, 
+        tags=[tag], 
+    )
+    if feeds:
+        sub_goals = await get_sub_goals_by_top_goal_ids(
+            conn=conn,
+            top_goal_ids=[f.top_goal.id for f in feeds],
+            limit=5,
+        )
+        sub_goals_group_by_top_goal_id = {feed.top_goal.id: [] for feed in feeds}
+        for sg in sub_goals:
+            sub_goals_group_by_top_goal_id[sg["top_goal_id"]].append(SubGoalRepsonse(**sg))
+        for feed in feeds:
+            feed.top_goal.sub_goals = sub_goals_group_by_top_goal_id[feed.top_goal.id]
+    return feeds
