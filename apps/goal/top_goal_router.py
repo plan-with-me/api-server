@@ -33,11 +33,10 @@ async def create_top_goal(
     tags = [tag.replace("#", "") for tag in list(set(form.tags))]
     if len(tags) > 5:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "태그는 최대 5개까지 등록 가능합니다")
-    related_tags = OpenAIClient().get_related_tags(tags)
     top_goal = await model.TopGoal.create(
         **form.__dict__,
         user_id=request.state.token_payload["id"],
-        related_tags=related_tags,
+        related_tags=OpenAIClient().get_related_tags(tags) if tags else [],
     )
     return top_goal
 
@@ -116,6 +115,9 @@ async def update_top_goal(
         id=top_goal_id,
         user_id=request.state.token_payload["id"],
     )
+    tags = [tag.replace("#", "") for tag in list(set(form.tags))]
+    if tags:
+        top_goal.related_tags = OpenAIClient().get_related_tags(tags)
     top_goal.update_from_dict(form.__dict__)
     await top_goal.save()
     return top_goal
