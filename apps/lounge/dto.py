@@ -25,4 +25,4 @@ class FeedForm(BaseModel):
 
 class FeedResponse(BaseModel):
     user: UserResponse
-    top_goal: TopGoalResponse
+    top_goal: TopGoalWithSubGoals

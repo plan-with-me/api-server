@@ -123,6 +123,7 @@ async def get_users(
 
 @router.post(
     path="/feeds",
+    response_model=list[FeedResponse],
     description="""
     개인화된 피드(다른 유저의 상위 목표)를 조회합니다.      
     exclude_ids 필드엔 제외할 상위 목표 ID 리스트를 입력합니다.(이미 UI에 노출된 상위 목표 ID 목록)   
@@ -130,13 +131,18 @@ async def get_users(
 )
 async def get_feeds(request: Request, form: FeedForm):
     request_user_id = request.state.token_payload["id"]
-    form.exclude_ids = [str(id) for id in form.exclude_ids]
+    form.exclude_ids = [str(id) for id in form.exclude_ids if isinstance(id, int)]
     conn = Tortoise.get_connection("default")
     main_tags = await get_tag_frequency(conn, request_user_id)
 
     feeds = []
     # 1. 주요 태그로 상위 목표의 tags 컬럼 검색(word_similarity 적용)
-    feeds = await search_top_goals_by_tags(conn, request_user_id, main_tags, form.exclude_ids)
+    feeds = await search_top_goals_by_tags(
+        conn=conn, 
+        request_user_id=request_user_id, 
+        tags=main_tags, 
+        exclude_ids=form.exclude_ids,
+    )
     if len(feeds) == 10:
         return feeds
     form.exclude_ids.extend([str(feed.top_goal.id) for feed in feeds])
@@ -169,9 +175,21 @@ async def get_feeds(request: Request, form: FeedForm):
     feeds.extend([
         FeedResponse(
             user=UserResponse(**top_goal.user.__dict__),
-            top_goal=TopGoalResponse(**top_goal.__dict__),
+            top_goal=TopGoalWithSubGoals(**top_goal.__dict__),
         ) for top_goal in top_goals
     ])
+    if feeds:
+        sub_goals = await get_sub_goals_by_top_goal_ids(
+            conn=conn,
+            top_goal_ids=[f.top_goal.id for f in feeds],
+            limit=5,
+        )
+        sub_goals_group_by_top_goal_id = {feed.top_goal.id: [] for feed in feeds}
+        for sg in sub_goals:
+            sub_goals_group_by_top_goal_id[sg["top_goal_id"]].append(SubGoalRepsonse(**sg))
+        for feed in feeds:
+            feed.top_goal.sub_goals = sub_goals_group_by_top_goal_id[feed.top_goal.id]
+
     return feeds
 
 

@@ -99,7 +99,16 @@ async def search_top_goals_by_tags(
     result = await conn.execute_query_dict(query, tags)
     result = [
         FeedResponse(
-            top_goal=TopGoalResponse(
+            user=UserResponse(
+                id=record["user_id"],
+                created_at=record["user_created_at"],
+                updated_at=record["user_updated_at"],
+                name=record["user_name"],
+                introduction=record["user_introduction"],
+                image=record["user_image"],
+                uid=record["user_uid"],
+            ),
+            top_goal=TopGoalWithSubGoals(
                 id=record["id"],
                 created_at=record["created_at"],
                 updated_at=record["updated_at"],
@@ -110,15 +119,37 @@ async def search_top_goals_by_tags(
                 user_id=record["user_id"],
                 tags=json.loads(record["tags"]),
             ),
-            user=UserResponse(
-                id=record["user_id"],
-                created_at=record["user_created_at"],
-                updated_at=record["user_updated_at"],
-                name=record["user_name"],
-                introduction=record["user_introduction"],
-                image=record["user_image"],
-                uid=record["user_uid"],
-            ),
         ) for record in result
     ]
+    return result
+
+
+async def get_sub_goals_by_top_goal_ids(
+    conn: BaseDBAsyncClient | TransactionContext, 
+    top_goal_ids: list[int], 
+    limit: int = 5,
+) -> dict:
+    top_goal_ids = ','.join([str(tgid) for tgid in top_goal_ids])
+    query = f"""
+    WITH RankedSubGoals AS (
+        SELECT
+            sg.*,
+            ROW_NUMBER() OVER (PARTITION BY sg.top_goal_id ORDER BY sg.plan_datetime DESC) AS row_num
+        FROM
+            {table_prefix if IS_PROD else ''}"subgoal" sg
+        WHERE
+            sg.top_goal_id IN ({top_goal_ids})
+    )
+    SELECT
+        rsg.*
+    FROM
+        {table_prefix if IS_PROD else ''}"topgoal" tg
+    LEFT JOIN RankedSubGoals rsg
+        ON tg.id = rsg.top_goal_id
+    WHERE
+        rsg.row_num <= {limit}
+    ORDER BY
+        tg.id, rsg.plan_datetime DESC;
+    """
+    result = await conn.execute_query_dict(query)
     return result

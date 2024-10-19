@@ -118,21 +118,21 @@ async def dummy_data():
     await goal_model.TopGoal.create(
         name="헬스조지기",
         user_id=2,
-        show_scope="followers",
+        show_scope="all",
         tags=["헬스"],
         related_tags=["운동", "건강", "다이어트"],
     )
     await goal_model.TopGoal.create(
         name="게임조지기",
         user_id=3,
-        show_scope="followers",
+        show_scope="all",
         tags=["게임"],
         related_tags=["컴퓨터", "취미", "여가"],
     )
     await goal_model.TopGoal.create(
         name="코딩조지기",
         user_id=3,
-        show_scope="followers",
+        show_scope="all",
         tags=["코딩"],
         related_tags=["프로그래밍", "공부", "개발"],
     )
