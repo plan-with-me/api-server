@@ -46,6 +46,7 @@ async def search_top_goals_by_tags(
     - topgoal의 id를 내림차순으로 정렬
     - 최대 10개의 결과를 반환
     """
+    filter_exclude_ids = f"and t.id not in ({','.join(exclude_ids)})" if exclude_ids else ""
     query = f"""
     with f as (
         select target_user_id, status
@@ -92,7 +93,7 @@ async def search_top_goals_by_tags(
         )
         and t.user_id != {request_user_id}
         and t.calendar_id IS NULL
-        {"and t.id not in (" + ",".join(exclude_ids) + ")" if exclude_ids else ""}
+        {filter_exclude_ids}
     order by t.id desc
     limit {limit}
     """
