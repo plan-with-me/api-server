@@ -20,7 +20,11 @@ class UserGoalsResponse(BaseModel):
 
 
 class FeedForm(BaseModel):
-    exclude_ids: list
+    exclude_ids: list[int]
+
+class FeedSearchForm(BaseModel):
+    exclude_ids: list[int]
+    tag: str
 
 
 class FeedResponse(BaseModel):

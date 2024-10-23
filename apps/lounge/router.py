@@ -136,48 +136,65 @@ async def get_feeds(request: Request, form: FeedForm):
     main_tags = await get_tag_frequency(conn, request_user_id)
 
     feeds = []
-    # 1. 주요 태그로 상위 목표의 tags 컬럼 검색(word_similarity 적용)
-    feeds = await search_top_goals_by_tags(
-        conn=conn, 
-        request_user_id=request_user_id, 
-        tags=main_tags, 
-        exclude_ids=form.exclude_ids,
-    )
-    if len(feeds) == 10:
-        return feeds
-    form.exclude_ids.extend([str(feed.top_goal.id) for feed in feeds])
-    limit = 10 - len(feeds)
-
-    # 2. 주요 태그로 상위 목표의 related_tags 컬럼 검색
-    feeds.extend(
-        await search_top_goals_by_tags(
+    limit = 10
+    if main_tags:
+        # 1. 주요 태그로 상위 목표의 tags 컬럼 검색(word_similarity 적용)
+        feeds = await search_top_goals_by_tags(
             conn=conn, 
             request_user_id=request_user_id, 
             tags=main_tags, 
-            exclude_ids=form.exclude_ids, 
-            query_on_tags_column=False,
+            exclude_ids=form.exclude_ids,
             limit=limit,
         )
-    )
-    if len(feeds) == 10:
-        return feeds
-    form.exclude_ids.extend([str(feed.top_goal.id) for feed in feeds])
-    limit = 10 - len(feeds)
+        if len(feeds) < 10:
+            form.exclude_ids.extend([str(feed.top_goal.id) for feed in feeds])
+            limit = 10 - len(feeds)
 
-    # 3. ㅈ까고 걍 다 검색 ㅋㅋ
-    top_goals = await (
-        TopGoal.exclude(id__in=form.exclude_ids, user_id=request_user_id)
-        .filter(show_scope=ShowScope.ALL)
-        .select_related("user")
-        .order_by("-id")
-        .limit(limit)
-    )
-    feeds.extend([
-        FeedResponse(
-            user=UserResponse(**top_goal.user.__dict__),
-            top_goal=TopGoalWithSubGoals(**top_goal.__dict__),
-        ) for top_goal in top_goals
-    ])
+            # 2. 주요 태그로 상위 목표의 related_tags 컬럼 검색
+            feeds.extend(
+                await search_top_goals_by_tags(
+                    conn=conn, 
+                    request_user_id=request_user_id, 
+                    tags=main_tags, 
+                    exclude_ids=form.exclude_ids, 
+                    query_on_tags_column=False,
+                    limit=limit,
+                )
+            )
+            if len(feeds) < 10:
+                form.exclude_ids.extend([str(feed.top_goal.id) for feed in feeds])
+                limit = 10 - len(feeds)
+
+                # 3. ㅈ까고 걍 다 검색 ㅋㅋ
+                top_goals = await (
+                    TopGoal.exclude(id__in=form.exclude_ids, user_id=request_user_id)
+                    .filter(show_scope=ShowScope.ALL)
+                    .select_related("user")
+                    .order_by("-id")
+                    .limit(limit)
+                )
+                feeds.extend([
+                    FeedResponse(
+                        user=UserResponse(**top_goal.user.__dict__),
+                        top_goal=TopGoalWithSubGoals(**top_goal.__dict__),
+                    ) for top_goal in top_goals
+                ])
+    else:
+        # 3. ㅈ까고 걍 다 검색 ㅋㅋ
+        top_goals = await (
+            TopGoal.exclude(id__in=form.exclude_ids, user_id=request_user_id)
+            .filter(show_scope=ShowScope.ALL)
+            .select_related("user")
+            .order_by("-id")
+            .limit(limit)
+        )
+        feeds.extend([
+            FeedResponse(
+                user=UserResponse(**top_goal.user.__dict__),
+                top_goal=TopGoalWithSubGoals(**top_goal.__dict__),
+            ) for top_goal in top_goals
+        ])
+
     if feeds:
         sub_goals = await get_sub_goals_by_top_goal_ids(
             conn=conn,
@@ -193,19 +210,22 @@ async def get_feeds(request: Request, form: FeedForm):
     return feeds
 
 
-@router.get(
+@router.post(
     path="/feeds/search",
     response_model=list[FeedResponse],
 )
-async def search_feeds_by_tag(request: Request, tag: str):
+async def search_feeds_by_tag(
+    request: Request, 
+    form: FeedSearchForm,
+):
     request_user_id = request.state.token_payload["id"]
     conn = Tortoise.get_connection("default")
 
     feeds = await search_top_goals_by_tags(
         conn=conn, 
         request_user_id=request_user_id, 
-        tags=[tag], 
-        limit=30,
+        tags=[form.tag], 
+        exclude_ids=form.exclude_ids,
     )
     if feeds:
         sub_goals = await get_sub_goals_by_top_goal_ids(
