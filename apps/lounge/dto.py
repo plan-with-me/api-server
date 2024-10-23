@@ -8,7 +8,7 @@ class TagsResponse(BaseModel):
 
 
 class TopGoalWithSubGoals(TopGoalResponse):
-    sub_goals: list[SubGoalRepsonse] = []
+    sub_goals: list[SubGoalRepsonse | SubGoalSimpleResponse] = []
 
 
 class UserGoalsResponse(BaseModel):

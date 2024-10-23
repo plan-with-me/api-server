@@ -140,6 +140,7 @@ async def get_sub_goals_by_top_goal_ids(
             {table_prefix if IS_PROD else ''}"subgoal" sg
         WHERE
             sg.top_goal_id IN ({top_goal_ids})
+            AND sg.calendar_id IS NULL
     )
     SELECT
         rsg.*

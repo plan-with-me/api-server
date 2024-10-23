@@ -186,7 +186,7 @@ async def get_feeds(request: Request, form: FeedForm):
         )
         sub_goals_group_by_top_goal_id = {feed.top_goal.id: [] for feed in feeds}
         for sg in sub_goals:
-            sub_goals_group_by_top_goal_id[sg["top_goal_id"]].append(SubGoalRepsonse(**sg))
+            sub_goals_group_by_top_goal_id[sg["top_goal_id"]].append(SubGoalSimpleResponse(**sg))
         for feed in feeds:
             feed.top_goal.sub_goals = sub_goals_group_by_top_goal_id[feed.top_goal.id]
 
@@ -215,7 +215,7 @@ async def search_feeds_by_tag(request: Request, tag: str):
         )
         sub_goals_group_by_top_goal_id = {feed.top_goal.id: [] for feed in feeds}
         for sg in sub_goals:
-            sub_goals_group_by_top_goal_id[sg["top_goal_id"]].append(SubGoalRepsonse(**sg))
+            sub_goals_group_by_top_goal_id[sg["top_goal_id"]].append(SubGoalSimpleResponse(**sg))
         for feed in feeds:
             feed.top_goal.sub_goals = sub_goals_group_by_top_goal_id[feed.top_goal.id]
     return feeds

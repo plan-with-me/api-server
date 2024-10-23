@@ -55,6 +55,12 @@ class SubGoalRepsonse(BaseResponse):
     reactions: list[ReactionSimpleResponse] = []
 
 
+class SubGoalSimpleResponse(BaseResponse):
+    name: str
+    plan_datetime: datetime
+    status: enum.GoalStatus
+
+
 class SubGoalForm(BaseModel):
     name: str
     plan_datetime: datetime
